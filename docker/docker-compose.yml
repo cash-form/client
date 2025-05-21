@@ -1,0 +1,23 @@
+# filepath: /Users/concepters/Documents/cash-form/client/docker/docker-compose.yml
+version: "3.8"
+
+services:
+  client:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ../:/app
+      - /app/node_modules
+    command: yarn dev
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+  app-network:
+    driver: bridge
