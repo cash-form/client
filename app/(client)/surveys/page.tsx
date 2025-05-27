@@ -1,3 +1,3 @@
-export default function BusinessSurvey() {
-  return <div>Business Survey</div>;
+export default function Survey() {
+  return <div>SurveyList</div>;
 }
