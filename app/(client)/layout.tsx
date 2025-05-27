@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <article>
       <Header />
-      {children}
+      <main className="pt-14">{children}</main>
     </article>
   );
 }
