@@ -1,8 +1,9 @@
 "use client";
+
 import Linker from "components/common/link/linker";
 import { PageUrlConfig } from "src/config/page.config";
 import ClientMenu from "components/client/layouts/menu";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import Modal from "components/common/modal/modal";
 import LoginForm from "components/client/layouts/loginForm";
 import { useSearchParams } from "next/navigation";
@@ -10,6 +11,14 @@ import { useUserMe } from "hooks/useUserMe";
 import { useAuthStore } from "src/store/authStore";
 
 export default function Header() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HeaderContent />
+    </Suspense>
+  );
+}
+
+function HeaderContent() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
