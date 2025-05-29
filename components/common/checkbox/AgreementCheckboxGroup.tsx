@@ -16,7 +16,7 @@ const AgreementCheckboxGroup: React.FC<AgreementCheckboxGroupProps> = ({
   agreements,
   onCheckbox,
 }) => (
-  <div className="space-y-3 py-4 border-t border-gray-200">
+  <div className="space-y-3 py-4 border-t border-gray-200 mb-0">
     <CommonCheckbox
       id="agree-all"
       checked={agreements.all}
