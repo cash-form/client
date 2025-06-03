@@ -20,7 +20,6 @@ export default function Header() {
 }
 
 function HeaderContent() {
-  const quryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const { isOpen, openModal, closeModal } = useLoginModalStore();
@@ -38,8 +37,8 @@ function HeaderContent() {
 
   return (
     <>
-      <header className="z-30 fixed w-full h-14 flex items-center justify-between px-4 border-b border-gray-300 bg-white">
-        <div className="flex items-center justify-start gap-16">
+      <header className="z-30 fixed w-full h-14 flex items-center justify-between px-4 border-b border-border bg-background">
+        <div className="flex items-center justify-start gap-16 text-foreground">
           <Linker
             href={PageUrlConfig.HOME}
             className="w-fit h-fit flex gap-3 items-center hover:opacity-80 transition-opacity duration-100 ease-in-out delay-0"
@@ -115,7 +114,7 @@ function HeaderContent() {
       {/* 모바일 드롭다운 메뉴 */}
       {isMobileMenuOpen && (
         <div
-          className="md:hidden fixed top-14 left-0 w-full bg-white border-b border-gray-300 shadow-lg z-20 overflow-y-auto"
+          className="md:hidden fixed top-14 left-0 w-full bg-white border-b border-border shadow-lg z-20 overflow-y-auto"
           onClick={handleToggleMobileMenu}
         >
           <div className=" p-4 flex-col ">
