@@ -1,26 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import CommonInput from "components/common/input/CommonInput";
 import CommonButton from "components/common/button/CommonButton";
 import useLoginForm from "hooks/useLoginForm";
-import { useRouter } from "next/navigation";
 import { useLogin } from "src/lib/queries/user";
 import Title from "components/common/title/title";
 import AuthInputFields from "components/common/authInputFields/authInputFields";
 
 export default function LoginForm({ onClose }: { onClose?: () => void }) {
-  const {
-    formData,
-    setFormData,
-    isLoading,
-    setIsLoading,
-    handleChange,
-    error,
-    setError,
-    validate,
-  } = useLoginForm();
-  const router = useRouter();
+  const { formData, isLoading, setIsLoading, handleChange, error, validate } =
+    useLoginForm();
   const login = useLogin(() => {
     if (onClose) onClose();
   });
@@ -65,7 +54,9 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
               로그인
             </CommonButton>
           </div>
-
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
           <div className="text-center mb-0">
             <span className="text-sm text-gray-600">
               계정이 없으신가요?
@@ -87,11 +78,6 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
               네이버
             </button>
           </div>
-
-          {/* 에러 메시지 */}
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
         </div>
       </div>
     </div>

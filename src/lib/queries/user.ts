@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { plainToInstance } from "class-transformer";
 import TokenDto from "src/dtos/user/token.dto";
 import UserDto from "src/dtos/user/user.dto";
@@ -68,10 +68,13 @@ export const loginUser = async ({
 };
 
 export const useLogin = (onSuccess: () => void) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
       saveTokens(data);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
       onSuccess();
     },
     onError: (error: any) => {

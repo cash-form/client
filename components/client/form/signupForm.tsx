@@ -6,10 +6,13 @@ import useSignupForm from "hooks/useSignupForm";
 import { useRegister } from "src/lib/queries/user";
 import Title from "components/common/title/title";
 import AuthInputFields from "components/common/authInputFields/authInputFields";
-import Swal from "sweetalert2";
+import Swal, { SweetAlertResult } from "sweetalert2";
 import { useLoginModalStore } from "src/stores/useLoginModalStore";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
+  const router = useRouter();
+
   const {
     formData,
     agreements,
@@ -32,8 +35,9 @@ export default function SignupForm() {
       title: "회원가입 완료!",
       text: "회원가입이 완료되었습니다.",
       icon: "success",
-    }).then((result: any) => {
+    }).then((result: SweetAlertResult) => {
       if (result.isConfirmed) {
+        router.push("/?login=1");
       }
     });
   });
@@ -76,7 +80,7 @@ export default function SignupForm() {
             error={error}
             onNicknameValidChange={setIsNicknameValid}
             onEmailValidChange={setIsEmailValid}
-            validateNickname={validateNickname} // 추가!
+            validateNickname={validateNickname}
             validateEmail={validateEmail}
           />
 

@@ -9,6 +9,7 @@ import LoginForm from "components/client/form/loginForm";
 import { useSearchParams } from "next/navigation";
 import { useLoginModalStore } from "src/stores/useLoginModalStore";
 import { useMe } from "src/lib/queries/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
   return (
@@ -19,6 +20,7 @@ export default function Header() {
 }
 
 function HeaderContent() {
+  const quryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const { isOpen, openModal, closeModal } = useLoginModalStore();
