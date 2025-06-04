@@ -34,12 +34,43 @@ export const MENU_TREE = (userRole: "user" | "business") => {
       ],
     },
     {
+      key: "register",
+      label: "설문 등록",
+      children: [
+        { key: "guide", label: "등록 절차 안내", path: PageUrlConfig.SURVEYS },
+        {
+          key: "register",
+          label: "설문등록 및 요금 안내",
+          path: PageUrlConfig.REGISTER,
+        },
+      ],
+    },
+    {
+      key: "report",
+      label: "통계 리포트",
+      children: [
+        {
+          key: "report-list",
+          label: "설문 리스트",
+          path: PageUrlConfig.SURVEYS,
+        },
+      ],
+    },
+    {
       key: "mypage",
       label: "마이페이지",
       children: [
-        { key: "history", label: "참여 내역", path: PageUrlConfig.SURVEYS },
-        { key: "points", label: "포인트 관리", path: PageUrlConfig.SURVEYS },
-        { key: "account", label: "계정 정보", path: PageUrlConfig.SURVEYS },
+        {
+          key: "history",
+          label: "참여 내역",
+          path: PageUrlConfig.SURVEYS,
+        },
+        {
+          key: "points management",
+          label: "포인트 관리",
+          path: PageUrlConfig.SURVEYS,
+        },
+        { key: "account", label: "계정 관리", path: PageUrlConfig.SURVEYS },
       ],
     },
     {
@@ -64,45 +95,5 @@ export const MENU_TREE = (userRole: "user" | "business") => {
     },
   ];
 
-  // business 전용 메뉴
-  const BUSINESS_ONLY_MENU = [
-    {
-      key: "register",
-      label: "설문 등록",
-      children: [
-        {
-          key: "guide",
-          label: "등록 절차 안내",
-          path: PageUrlConfig.SURVEYS,
-        },
-        {
-          key: "register",
-          label: "설문 등록",
-          path: PageUrlConfig.SURVEYS,
-        },
-      ],
-    },
-    {
-      key: "report",
-      label: "통계 리포트",
-      children: [
-        {
-          key: "report-list",
-          label: "설문 리스트",
-          path: PageUrlConfig.SURVEYS,
-          // children: [
-          //   {
-          //     key: "report-detail",
-          //     label: "상세 리포트",
-          //     path: PageUrlConfig.SURVEYS,
-          //   },
-          // ],
-        },
-      ],
-    },
-  ];
-
-  return userRole === "business"
-    ? [...baseMenu.slice(0, 1), ...BUSINESS_ONLY_MENU, ...baseMenu.slice(1)]
-    : baseMenu;
+  return baseMenu;
 };
