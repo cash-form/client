@@ -9,11 +9,10 @@ type SurveyCardProps = {
 
 export default function SurveyCard({ type, data }: SurveyCardProps) {
   const config = planConfig[type];
-  const IconComponent = config.icon;
 
   return (
     <div
-      className={`relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border overflow-hidden group 
+      className={`relative rounded-2xl shadow-lg hover:-translate-y-1 border overflow-hidden  
         bg-white border-border`}
     >
       <div className={`bg-gradient-to-r ${config.color} p-6 text-white`}>
