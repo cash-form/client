@@ -13,8 +13,8 @@ interface AuthInputFieldsProps {
     passwordConfirm?: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onNicknameValidChange: (valid: boolean) => void;
-  onEmailValidChange: (valid: boolean) => void;
+  onNicknameValidChange?: (valid: boolean) => void;
+  onEmailValidChange?: (valid: boolean) => void;
   error?: any;
   validateNickname?: (nickname: string) => boolean;
   validateEmail?: (email: string) => boolean;
@@ -71,16 +71,20 @@ export default function AuthInputFields({
   useEffect(() => {
     if (emailData?.result) {
       setEmailCheckError("");
-      onEmailValidChange(true);
+      if (!isLogin) {
+        onEmailValidChange?.(true);
+      }
     }
     if (emailError) {
       const errorMessage =
         emailError?.response?.message ||
         "이메일 중복 체크 중 오류가 발생했습니다.";
       setEmailCheckError(errorMessage);
-      onEmailValidChange(false);
+      if (!isLogin) {
+        onEmailValidChange?.(false);
+      }
     }
-  }, [emailData, emailError, onEmailValidChange]);
+  }, [emailData, emailError, onEmailValidChange, isLogin]);
 
   // 닉네임 입력값 디바운스 처리
   useEffect(() => {
@@ -93,16 +97,20 @@ export default function AuthInputFields({
   useEffect(() => {
     if (nicknameData?.result) {
       setNicknameCheckError("");
-      onNicknameValidChange(true);
+      if (!isLogin) {
+        onNicknameValidChange?.(true);
+      }
     }
     if (nicknameError) {
       const errorMessage =
         nicknameError?.response?.message ||
         "닉네임 중복 체크 중 오류가 발생했습니다.";
       setNicknameCheckError(errorMessage);
-      onNicknameValidChange(false);
+      if (!isLogin) {
+        onNicknameValidChange?.(false);
+      }
     }
-  }, [nicknameData, nicknameError, onNicknameValidChange]);
+  }, [nicknameData, nicknameError, onNicknameValidChange, isLogin]);
 
   return (
     <div className="space-y-4">

@@ -6,6 +6,7 @@ import useLoginForm from "hooks/useLoginForm";
 import { useLogin } from "src/lib/queries/user";
 import Title from "components/common/title/title";
 import AuthInputFields from "components/common/authInputFields/authInputFields";
+import Swal from "sweetalert2";
 
 export default function LoginForm({ onClose }: { onClose?: () => void }) {
   const { formData, isLoading, setIsLoading, handleChange, error, validate } =
@@ -24,7 +25,11 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
       login.mutate({ email: formData.email, password: formData.password });
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert("로그인 실패");
+      Swal.fire({
+        title: "로그인 실패",
+        text: "로그인 실패",
+        icon: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +60,7 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
             </CommonButton>
           </div>
           {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+            <div className="text-warning text-sm text-center">{error}</div>
           )}
           <div className="text-center mb-0">
             <span className="text-sm text-gray-600">
