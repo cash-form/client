@@ -76,8 +76,9 @@ export default function AuthInputFields({
       }
     }
     if (emailError) {
+      // FIXME: 타입 정의 후 변경
       const errorMessage =
-        emailError?.response?.message ||
+        (emailError as any)?.response?.message ||
         "이메일 중복 체크 중 오류가 발생했습니다.";
       setEmailCheckError(errorMessage);
       if (!isLogin) {
@@ -102,8 +103,9 @@ export default function AuthInputFields({
       }
     }
     if (nicknameError) {
+      // FIXME: 타입 정의 후 변경
       const errorMessage =
-        nicknameError?.response?.message ||
+        (nicknameError as any)?.response?.message ||
         "닉네임 중복 체크 중 오류가 발생했습니다.";
       setNicknameCheckError(errorMessage);
       if (!isLogin) {
