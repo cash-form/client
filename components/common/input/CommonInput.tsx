@@ -23,7 +23,7 @@ const CommonInput: React.FC<CommonInputProps> = ({
   required = false,
   className = "",
 }) => (
-  <div>
+  <div className="mb-3">
     {label && (
       <label htmlFor={id} className="block text-sm font-medium text-gray-700">
         {label}

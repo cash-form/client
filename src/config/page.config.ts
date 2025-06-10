@@ -8,4 +8,5 @@ export const PageUrlConfig: PageUrlConfigType = {
   SURVEYS: "/surveys",
   SUPPORT: "/support",
   SIGN_UP: "/signup",
+  REGISTER: "/surveys/register",
 };

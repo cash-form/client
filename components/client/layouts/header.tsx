@@ -5,10 +5,11 @@ import { PageUrlConfig } from "src/config/page.config";
 import ClientMenu from "components/client/layouts/menu";
 import { useState, useCallback, useEffect, Suspense } from "react";
 import Modal from "components/common/modal/modal";
-import LoginForm from "components/client/layouts/loginForm";
+import LoginForm from "components/client/form/loginForm";
 import { useSearchParams } from "next/navigation";
-import { useUserMe } from "hooks/useUserMe";
-import { useAuthStore } from "src/store/authStore";
+import { useLoginModalStore } from "src/stores/useLoginModalStore";
+import { useMe } from "src/lib/queries/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
   return (
@@ -19,24 +20,16 @@ export default function Header() {
 }
 
 function HeaderContent() {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
-  const { user, loading } = useUserMe();
+  const { isOpen, openModal, closeModal } = useLoginModalStore();
+  const { data: user } = useMe();
 
   useEffect(() => {
     if (searchParams.get("login") === "1") {
-      setIsLoginModalOpen(true);
+      openModal();
     }
-  }, [searchParams]);
-
-  const handleOpenLoginModal = useCallback(() => {
-    setIsLoginModalOpen(true);
-  }, []);
-
-  const handleCloseLoginModal = useCallback(() => {
-    setIsLoginModalOpen(false);
-  }, []);
+  }, [searchParams, openModal]);
 
   const handleToggleMobileMenu = useCallback(() => {
     setIsMobileMenuOpen((prev) => !prev);
@@ -44,8 +37,8 @@ function HeaderContent() {
 
   return (
     <>
-      <header className="z-30 fixed w-full h-14 flex items-center justify-between px-4 border-b border-gray-300 bg-white">
-        <div className="flex items-center justify-start gap-16">
+      <header className="z-30 fixed w-full h-14 flex items-center justify-between px-4 border-b border-border bg-background">
+        <div className="flex items-center justify-start gap-16 text-foreground">
           <Linker
             href={PageUrlConfig.HOME}
             className="w-fit h-fit flex gap-3 items-center hover:opacity-80 transition-opacity duration-100 ease-in-out delay-0"
@@ -66,28 +59,26 @@ function HeaderContent() {
         </div>
 
         <div className="w-fit h-full flex items-center justify-end gap-4 py-3">
-          {loading ? null : user ? (
-            <>
-              {/* <span className="mr-2 font-bold text-primary">
-                {user.nickname}님
-              </span> */}
-              <button
-                className="w-20 h-full flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0 text-lg text-primary font-bold"
-                onClick={() => {
-                  useAuthStore.getState().clearTokens();
-                  location.reload();
-                }}
-              >
-                로그아웃
-              </button>
-            </>
+          {user ? (
+            <span
+              className="w-20 h-full flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0"
+              tabIndex={0}
+              onClick={() => {
+                document.cookie = "accessToken=; max-age=0; path=/";
+                document.cookie = "refreshToken=; max-age=0; path=/";
+                location.reload();
+              }}
+            >
+              <p className="text-lg text-primary font-bold">로그아웃</p>
+              {/* TODO: 로그아웃 처리 */}
+            </span>
           ) : (
             <span
               className="w-20 h-full flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0"
-              onClick={handleOpenLoginModal}
+              onClick={openModal}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
-                  handleOpenLoginModal();
+                  openModal();
                 }
               }}
               tabIndex={0}
@@ -123,7 +114,7 @@ function HeaderContent() {
       {/* 모바일 드롭다운 메뉴 */}
       {isMobileMenuOpen && (
         <div
-          className="md:hidden fixed top-14 left-0 w-full bg-white border-b border-gray-300 shadow-lg z-20 overflow-y-auto"
+          className="md:hidden fixed top-14 left-0 w-full bg-white border-b border-border shadow-lg z-20 overflow-y-auto"
           onClick={handleToggleMobileMenu}
         >
           <div className=" p-4 flex-col ">
@@ -140,12 +131,8 @@ function HeaderContent() {
         />
       )}
 
-      <Modal
-        isOpen={isLoginModalOpen}
-        onClose={handleCloseLoginModal}
-        size="md"
-      >
-        <LoginForm onClose={handleCloseLoginModal} />
+      <Modal isOpen={isOpen} onClose={closeModal} size="md">
+        <LoginForm onClose={closeModal} />
       </Modal>
     </>
   );

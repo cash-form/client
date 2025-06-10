@@ -1,24 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import CommonInput from "components/common/input/CommonInput";
 import CommonButton from "components/common/button/CommonButton";
 import useLoginForm from "hooks/useLoginForm";
-import { useRouter } from "next/navigation";
 import { useLogin } from "src/lib/queries/user";
+import Title from "components/common/title/title";
+import AuthInputFields from "components/common/authInputFields/authInputFields";
+import Swal from "sweetalert2";
 
 export default function LoginForm({ onClose }: { onClose?: () => void }) {
-  const {
-    formData,
-    setFormData,
-    isLoading,
-    setIsLoading,
-    handleChange,
-    error,
-    setError,
-    validate,
-  } = useLoginForm();
-  const router = useRouter();
+  const { formData, isLoading, setIsLoading, handleChange, error, validate } =
+    useLoginForm();
   const login = useLogin(() => {
     if (onClose) onClose();
   });
@@ -33,7 +25,11 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
       login.mutate({ email: formData.email, password: formData.password });
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert("로그인 실패");
+      Swal.fire({
+        title: "로그인 실패",
+        text: "로그인 실패",
+        icon: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -43,35 +39,15 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
     <div className="flex items-center justify-center">
       <div className="max-w-md w-full space-y-8 pt-6">
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
-            로그인
-          </h2>
+          <Title>로그인</Title>
         </div>
         <div className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <CommonInput
-              label="이메일"
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="email@cashform.com"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <CommonInput
-              label="비밀번호"
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="비밀번호를 입력하세요"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
+          <AuthInputFields
+            type="login"
+            formData={formData}
+            handleChange={handleChange}
+            error={error}
+          />
 
           <div>
             <CommonButton
@@ -83,7 +59,9 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
               로그인
             </CommonButton>
           </div>
-
+          {error && (
+            <div className="text-warning text-sm text-center">{error}</div>
+          )}
           <div className="text-center mb-0">
             <span className="text-sm text-gray-600">
               계정이 없으신가요?
@@ -105,11 +83,6 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
               네이버
             </button>
           </div>
-
-          {/* 에러 메시지 */}
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
         </div>
       </div>
     </div>

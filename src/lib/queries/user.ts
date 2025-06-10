@@ -1,10 +1,11 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { plainToInstance } from "class-transformer";
 import TokenDto from "src/dtos/user/token.dto";
 import UserDto from "src/dtos/user/user.dto";
 import { fetchWithAuth } from "../api/commonFetch.utility";
 import { getAccessToken, saveTokens } from "../api/common.utilitiy";
-import { useAuthStore } from "src/store/authStore";
+import Swal from "sweetalert2";
+import CheckDuplicateDto from "src/dtos/user/duplicate.dto";
 
 // 회원가입
 export const registerUser = async ({
@@ -37,8 +38,16 @@ export const useRegister = (onSuccess: () => void) => {
   return useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
+      saveTokens(data);
       onSuccess();
+    },
+    onError: (error: any) => {
+      Swal.fire({
+        title: "회원가입 실패",
+        text:
+          "회원가입 실패: " + (error?.response?.message || "알 수 없는 오류"),
+        icon: "error",
+      });
     },
   });
 };
@@ -59,16 +68,22 @@ export const loginUser = async ({
 };
 
 export const useLogin = (onSuccess: () => void) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: loginUser,
     onSuccess: (data) => {
-      console.log("[로그인 응답 accessToken]", data.accessToken);
-      useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
-      console.log(
-        "[zustand 저장 후 accessToken]",
-        useAuthStore.getState().accessToken
-      );
+      saveTokens(data);
+      queryClient.invalidateQueries({ queryKey: ["me"] });
       onSuccess();
+    },
+    onError: (error: any) => {
+      console.log(error.response);
+      Swal.fire({
+        title: "로그인 실패",
+        text: "로그인 실패: " + (error?.response?.message || "알 수 없는 오류"),
+        icon: "error",
+      });
     },
   });
 };
@@ -90,35 +105,56 @@ export const useMe = () => {
 // 닉네임 중복 체크
 export const checkNicknameDuplicate = async (
   nickname: string
-): Promise<"ok" | "duplicate" | "bad_request" | "error"> => {
+): Promise<CheckDuplicateDto> => {
   try {
-    await fetchWithAuth(
-      `/v1/users/duplicate/name?nickname=${encodeURIComponent(nickname)}`,
-      { method: "GET" }
+    const data = await fetchWithAuth(
+      `/v1/users/duplicate/name?nickname=${nickname}`,
+      {
+        method: "GET",
+      }
     );
-    return "ok";
-  } catch (err: any) {
-    const status = err?.response?.statusCode || err?.response?.status;
-    if (status === 409) return "duplicate";
-    if (status === 400) return "bad_request";
-    return "error";
+    return plainToInstance(CheckDuplicateDto, data);
+  } catch (error) {
+    throw error;
   }
+};
+
+export const useNickname = (nickname?: string, enabled = true) => {
+  return useQuery({
+    queryKey: ["nickname", nickname],
+    queryFn: () => checkNicknameDuplicate(nickname!),
+    enabled: enabled,
+    retry: false,
+  });
 };
 
 // 이메일 중복 체크
 export const checkEmailDuplicate = async (
   email: string
-): Promise<"ok" | "duplicate" | "bad_request" | "error"> => {
+): Promise<CheckDuplicateDto> => {
   try {
-    await fetchWithAuth(
-      `/v1/users/duplicate/account?email=${encodeURIComponent(email)}`,
-      { method: "GET" }
+    const data = await fetchWithAuth(
+      `/v1/users/duplicate/account?email=${email}`,
+      {
+        method: "GET",
+      }
     );
-    return "ok";
-  } catch (err: any) {
-    const status = err?.response?.statusCode || err?.response?.status;
-    if (status === 409) return "duplicate";
-    if (status === 400) return "bad_request";
-    return "error";
+    return plainToInstance(CheckDuplicateDto, data);
+  } catch (error) {
+    throw error;
   }
+};
+export const useEmail = (email?: string, enabled = true) => {
+  return useQuery({
+    // mutationFn: checkEmailDuplicate,
+    // onSuccess: (data) => {
+    //   onSuccess();
+    // },
+    // onError: (error: any) => {},
+
+    queryKey: ["email", email],
+    queryFn: () => checkEmailDuplicate(email!),
+    enabled: enabled,
+    retry: false,
+  });
 };
