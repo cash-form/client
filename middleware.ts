@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+// FIXME: 토큰 리프레시 처리하세요
 
-import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
   console.log("hasRefresh", hasRefresh);
   if (!hasRefresh) {
     // 토큰 없으면 /sign/in으로 리디렉션
-    const redirectUrl = new URL("/?login=1", request.url);
+    const redirectUrl = new URL("?login=1", request.url);
     return NextResponse.redirect(redirectUrl);
   }
 

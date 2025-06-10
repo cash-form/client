@@ -1,5 +1,15 @@
 import { PageUrlConfig } from "./page.config";
 
+// 설문 상태 타입 정의
+export const SurveyStatusType = {
+  BEFORE: 1,
+  PROGRESS: 2,
+  FINISH: 3,
+  DELETED: 4,
+} as const;
+export type SurveyStatusType =
+  (typeof SurveyStatusType)[keyof typeof SurveyStatusType];
+
 // 모달 크기 설정
 export const MODAL_SIZE_CLASSES = {
   sm: "max-w-md",
