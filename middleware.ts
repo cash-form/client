@@ -51,7 +51,7 @@ async function getAccessToken(refreshToken: string, response: NextResponse) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
-    const res = await fetch(`${apiUrl}/AC/US003`, {
+    const res = await fetch(`${apiUrl}/auth/refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
