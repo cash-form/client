@@ -32,6 +32,7 @@ export interface ContentSection {
 }
 
 interface BaseQuestion {
+  id: string;
   type: QuestionType;
   title: string;
   text: string;

@@ -73,8 +73,9 @@ export default function SurveyFormWrapper() {
 
       const processedQuestionImages = await Promise.all(
         formData.questions.map(async (question) => {
+          const { id, ...questionWithoutId } = question;
           return {
-            ...question,
+            ...questionWithoutId,
             type: convertQuestionType(question.type),
             images: await Promise.all(
               question.images.map(
@@ -111,7 +112,7 @@ export default function SurveyFormWrapper() {
         },
       };
 
-      console.log("전송할 데이터:", requestData);
+      console.log("requestData:", requestData);
       registerSurvey(requestData);
     } catch (error) {
       console.error("설문 등록 중 오류 발생:", error);

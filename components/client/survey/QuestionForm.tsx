@@ -159,26 +159,54 @@ export default function QuestionForm({
       </div>
 
       {type === "point" ? (
-        <input
-          type="text"
-          value={questionData.text}
-          onChange={(e) => {
-            if (e.target.value.length <= 30) {
-              handleChange({ text: e.target.value });
-            }
-          }}
-          placeholder="질문을 입력하세요 (최대 30자)"
-          className="w-full p-3 border rounded-lg mb-4"
-          maxLength={30}
-        />
+        <>
+          <input
+            type="text"
+            value={questionData.title}
+            onChange={(e) => {
+              if (e.target.value.length <= 20) {
+                handleChange({ title: e.target.value });
+              }
+            }}
+            placeholder="질문 제목을 입력하세요 (최대 20자)"
+            className="w-full p-3 border rounded-lg mb-4"
+            maxLength={20}
+          />
+          <input
+            type="text"
+            value={questionData.text}
+            onChange={(e) => {
+              if (e.target.value.length <= 30) {
+                handleChange({ text: e.target.value });
+              }
+            }}
+            placeholder="질문 내용을 입력하세요 (최대 30자)"
+            className="w-full p-3 border rounded-lg mb-4"
+            maxLength={30}
+          />
+        </>
       ) : (
-        <textarea
-          value={questionData.text}
-          onChange={(e) => handleChange({ text: e.target.value })}
-          placeholder="질문을 입력하세요"
-          className="w-full p-3 border rounded-lg mb-4"
-          rows={3}
-        />
+        <>
+          <input
+            type="text"
+            value={questionData.title}
+            onChange={(e) => {
+              if (e.target.value.length <= 20) {
+                handleChange({ title: e.target.value });
+              }
+            }}
+            placeholder="질문 제목을 입력하세요 (최대 20자)"
+            className="w-full p-3 border rounded-lg mb-4"
+            maxLength={20}
+          />
+          <textarea
+            value={questionData.text}
+            onChange={(e) => handleChange({ text: e.target.value })}
+            placeholder="질문 내용을 입력하세요"
+            className="w-full p-3 border rounded-lg mb-4"
+            rows={3}
+          />
+        </>
       )}
 
       {type !== "point" && (
