@@ -8,6 +8,8 @@
   --warning: #ffb300;
   --caution: #ff4d4d;
   --border: #6f7074;
+  --font-geist-sans: "Geist Sans", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,80 +31,15 @@
   --color-secondary: var(--secondary);
   --color-warning: var(--warning);
   --color-caution: var(--caution);
+  --color-border: var(--border);
+  --color-ring: var(--primary);
+  --color-input: var(--border);
+  --color-muted-foreground: #6b7280;
+  --color-destructive: var(--caution);
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0f172a;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-/*  모바일 (375px 이상) */
-@media (min-width: 375px) {
-  .mobile\:mx-4 {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-  .mobile\:p-4 {
-    padding: 1rem;
-  }
-  .mobile\:p-5 {
-    padding: 1.25rem;
-  }
-  .mobile\:text-lg {
-    font-size: 1.125rem;
-  }
-  .mobile\:text-xl {
-    font-size: 1.25rem;
-  }
-  .mobile\:min-w-10 {
-    min-width: 2.5rem;
-  }
-  .mobile\:min-h-10 {
-    min-height: 2.5rem;
-  }
-}
-
-/*  태블릿 (768px 이상) */
-@media (min-width: 768px) {
-  .tablet\:mx-6 {
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
-  }
-  .tablet\:p-5 {
-    padding: 1.25rem;
-  }
-  .tablet\:p-6 {
-    padding: 1.5rem;
-  }
-  .tablet\:text-xl {
-    font-size: 1.25rem;
-  }
-  .tablet\:text-2xl {
-    font-size: 1.5rem;
-  }
-  .tablet\:min-w-12 {
-    min-width: 3rem;
-  }
-  .tablet\:min-h-12 {
-    min-height: 3rem;
-  }
-}
-
-/*  데스크톱 (1440px 이상) */
-@media (min-width: 1440px) {
-  .desktop\:mx-8 {
-    margin-left: 2rem;
-    margin-right: 2rem;
-  }
-  .desktop\:p-6 {
-    padding: 1.5rem;
-  }
-  .desktop\:p-8 {
-    padding: 2rem;
-  }
-  .desktop\:text-2xl {
-    font-size: 1.5rem;
-  }
-  .desktop\:text-3xl {
-    font-size: 1.875rem;
-  }
 }
 
 body {

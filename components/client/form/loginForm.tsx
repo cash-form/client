@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import CommonButton from "components/common/button/CommonButton";
 import useLoginForm from "hooks/useLoginForm";
 import { useLogin } from "src/lib/queries/user";
+import { LoginRequestDto } from "src/dtos/user/auth.dto";
 import Title from "components/common/title/title";
-import AuthInputFields from "components/common/authInputFields/authInputFields";
+import { Input } from "src/components/ui/input";
+import { Label } from "src/components/ui/label";
 import Swal from "sweetalert2";
+import { Button } from "src/components/ui/button";
 
 export default function LoginForm({ onClose }: { onClose?: () => void }) {
   const { formData, isLoading, setIsLoading, handleChange, error, validate } =
@@ -22,7 +24,12 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
     setIsLoading(true);
 
     try {
-      login.mutate({ email: formData.email, password: formData.password });
+      const loginData: LoginRequestDto = {
+        email: formData.email,
+        password: formData.password,
+      };
+
+      login.mutate(loginData);
     } catch (error) {
       console.error("로그인 실패:", error);
       Swal.fire({
@@ -42,22 +49,45 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
           <Title>로그인</Title>
         </div>
         <div className="mt-8 space-y-6">
-          <AuthInputFields
-            type="login"
-            formData={formData}
-            handleChange={handleChange}
-            error={error}
-          />
+          <div className="space-y-4">
+            {/* 이메일 */}
+            <div className="space-y-2">
+              <Label htmlFor="email">이메일</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="email@cashform.com"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* 비밀번호 */}
+            <div className="space-y-2">
+              <Label htmlFor="password">비밀번호</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="비밀번호를 입력하세요"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
 
           <div>
-            <CommonButton
+            <Button
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-m font-bold rounded-md  text-white bg-secondary cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               로그인
-            </CommonButton>
+            </Button>
           </div>
           {error && (
             <div className="text-warning text-sm text-center">{error}</div>

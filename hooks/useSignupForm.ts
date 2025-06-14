@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RegisterFormData } from "src/types/auth";
 
 function validateEmail(email: string) {
   // 간단한 이메일 정규식
@@ -13,11 +14,13 @@ function validatePassword(password: string) {
 }
 
 export default function useSignupForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterFormData>({
     nickname: "",
     email: "",
     password: "",
     passwordConfirm: "",
+    marketingConsent: false,
+    newsletterConsent: false,
   });
   const [agreements, setAgreements] = useState({
     all: false,
@@ -27,8 +30,6 @@ export default function useSignupForm() {
     newsletter: false,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
-  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [error, setError] = useState<{
     nickname: string;
     email: string;
@@ -161,11 +162,8 @@ export default function useSignupForm() {
         };
       } else {
         newAgreements[name] = !prev[name];
-        newAgreements.all =
-          newAgreements.terms &&
-          newAgreements.privacy &&
-          newAgreements.marketing &&
-          newAgreements.newsletter;
+        // 필수 항목(terms, privacy)이 모두 체크되면 "모두 동의"도 체크
+        newAgreements.all = newAgreements.terms && newAgreements.privacy;
       }
       setError((prevError) => ({
         ...prevError,
@@ -180,19 +178,15 @@ export default function useSignupForm() {
 
   return {
     formData,
-    setFormData,
     agreements,
-    setAgreements,
     isLoading,
     setIsLoading,
     handleChange,
     handleAgreementCheckbox,
     error,
     setError,
-    validate, // 추가!
+    validate,
     isFormValid,
-    isCheckingNickname,
-    isCheckingEmail,
     validateNickname,
     validateEmail,
   };
