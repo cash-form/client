@@ -93,7 +93,7 @@ export default function LoginForm({ onClose }: { onClose?: () => void }) {
             <div className="text-warning text-sm text-center">{error}</div>
           )}
           <div className="text-center mb-0">
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-foreground/50">
               계정이 없으신가요?
               <Link
                 href="/signup"

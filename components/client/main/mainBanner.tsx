@@ -1,7 +1,7 @@
 import { PageUrlConfig } from "src/config/page.config";
 import { SLOGAN } from "src/config/constants";
 import { Button } from "src/components/ui/button";
-import Link from "next/link";
+import Linker from "components/common/link/linker";
 
 export default function MainBanner() {
   return (
@@ -20,7 +20,7 @@ export default function MainBanner() {
             asChild
             className="bg-white/25 hover:bg-white/35 text-white border-2 border-white/40 backdrop-blur-sm px-8 py-6 text-lg font-bold rounded-full transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-2xl min-w-[200px]"
           >
-            <Link href={PageUrlConfig.SURVEYS}>설문참여하기</Link>
+            <Linker href={PageUrlConfig.SURVEYS}>설문참여하기</Linker>
           </Button>
 
           <Button
@@ -28,7 +28,7 @@ export default function MainBanner() {
             variant="secondary"
             className="bg-white/95 hover:bg-white text-black/80 hover:text-black/90 px-8 py-6 text-lg font-bold rounded-full transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-2xl min-w-[200px] border-0"
           >
-            <Link href={PageUrlConfig.REGISTER}>설문등록하기</Link>
+            <Linker href={PageUrlConfig.REGISTER}>설문등록하기</Linker>
           </Button>
         </div>
       </div>

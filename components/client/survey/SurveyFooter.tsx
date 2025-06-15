@@ -96,7 +96,7 @@ export default function SurveyFooter({
             {formData.footer.images.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 p-2 rounded"
+                className="flex items-center justify-between text-sm text-foreground/50 bg-gray-50 p-2 rounded"
               >
                 <span>{file.name}</span>
                 <button

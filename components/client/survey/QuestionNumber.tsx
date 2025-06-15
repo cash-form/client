@@ -12,7 +12,11 @@ export default function QuestionNumber({
       className={`
         flex items-center justify-center
         w-8 h-8 rounded-full 
-        ${isDragging ? "bg-primary text-white" : "bg-gray-100 text-gray-700"}
+        ${
+          isDragging
+            ? "bg-primary text-white"
+            : "bg-foreground/10 text-foreground/70"
+        }
         font-semibold text-sm
         transition-colors
       `}

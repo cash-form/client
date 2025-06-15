@@ -91,6 +91,19 @@
   .backdrop-blur-sm {
     backdrop-filter: blur(4px);
   }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
 }
 body {
   background: var(--background);
@@ -123,5 +136,40 @@ body {
   /* 본문 텍스트 기본 */
   p {
     @apply leading-relaxed mb-4;
+  }
+}
+/* 300px 미만일 때 전체 페이지를 비례 축소 (유튜브 방식) */
+@media (max-width: 299px) {
+  html {
+    /* 현재 화면 너비에 맞춰 비례 축소 */
+    zoom: calc(100vw / 300px);
+
+    /* 또는 transform 사용 */
+    /* transform: scale(calc(100vw / 300));
+    transform-origin: top left; */
+  }
+
+  body {
+    /* 가로 스크롤 완전 제거 */
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* 더 세밀한 제어를 원한다면 */
+@media (max-width: 299px) {
+  * {
+    /* 모든 요소의 최소 너비 제한 해제 */
+    min-width: unset !important;
+  }
+
+  html {
+    zoom: calc(100vw / 300px);
+  }
+
+  body {
+    overflow-x: hidden;
+    width: 100vw;
   }
 }

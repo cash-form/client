@@ -47,7 +47,7 @@ function HeaderContent() {
               alt="cash form logo"
               className="w-8 h-8 object-contain "
             />
-            <h1 className="text-xl font-bold min-w-28 whitespace-nowrap">
+            <h1 className="text-xl font-bold min-w-28 whitespace-nowrap m-0">
               CASH FORM
             </h1>
           </Linker>
@@ -68,7 +68,7 @@ function HeaderContent() {
                 location.reload();
               }}
             >
-              <p className="text-lg text-primary font-bold">로그아웃</p>
+              <p className="text-lg text-primary font-bold m-0">로그아웃</p>
               {/* TODO: 로그아웃 처리 */}
             </span>
           ) : (
