@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LoginFormData } from "src/types/auth";
 
 function validateEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -9,7 +10,7 @@ function validatePassword(password: string) {
 }
 
 export default function useLoginForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });

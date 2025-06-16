@@ -1,51 +1,44 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { plainToInstance } from "class-transformer";
 import TokenDto from "src/dtos/user/token.dto";
-import UserDto from "src/dtos/user/user.dto";
+import CheckDuplicateDto from "src/dtos/user/duplicate.dto";
+import {
+  LoginRequestDto,
+  RegisterRequestDto,
+  LoginResponseDto,
+  RegisterResponseDto,
+  RefreshTokenRequestDto,
+  RefreshTokenResponseDto,
+} from "src/dtos/user/auth.dto";
+import { ApiError } from "src/types/auth";
 import { fetchWithAuth } from "../api/commonFetch.utility";
 import { getAccessToken, saveTokens } from "../api/common.utilitiy";
 import Swal from "sweetalert2";
-import CheckDuplicateDto from "src/dtos/user/duplicate.dto";
+import { UserDto } from "src/dtos/user";
 
 // 회원가입
-export const registerUser = async ({
-  email,
-  password,
-  nickname,
-  marketingConsent,
-  newsletterConsent,
-}: {
-  email: string;
-  password: string;
-  nickname: string;
-  marketingConsent: boolean;
-  newsletterConsent: boolean;
-}): Promise<TokenDto> => {
+export const registerUser = async (
+  requestData: RegisterRequestDto
+): Promise<RegisterResponseDto> => {
   const data = await fetchWithAuth("/v1/auth/register", {
     method: "POST",
-    body: JSON.stringify({
-      email,
-      password,
-      nickname,
-      marketingConsent,
-      newsletterConsent,
-    }),
+    body: JSON.stringify(requestData),
   });
-  return plainToInstance(TokenDto, data);
+  return data as RegisterResponseDto;
 };
 
 export const useRegister = (onSuccess: () => void) => {
   return useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      saveTokens(data);
+      const tokenDto = plainToInstance(TokenDto, data);
+      saveTokens(tokenDto);
       onSuccess();
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       Swal.fire({
         title: "회원가입 실패",
-        text:
-          "회원가입 실패: " + (error?.response?.message || "알 수 없는 오류"),
+        text: "회원가입 실패: " + (error?.message || "알 수 없는 오류"),
         icon: "error",
       });
     },
@@ -53,18 +46,14 @@ export const useRegister = (onSuccess: () => void) => {
 };
 
 // 로그인
-export const loginUser = async ({
-  email,
-  password,
-}: {
-  email: string;
-  password: string;
-}): Promise<TokenDto> => {
+export const loginUser = async (
+  requestData: LoginRequestDto
+): Promise<LoginResponseDto> => {
   const data = await fetchWithAuth("/v1/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(requestData),
   });
-  return plainToInstance(TokenDto, data);
+  return data as LoginResponseDto;
 };
 
 export const useLogin = (onSuccess: () => void) => {
@@ -77,11 +66,11 @@ export const useLogin = (onSuccess: () => void) => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
       onSuccess();
     },
-    onError: (error: any) => {
-      console.log(error.response);
+    onError: (error: ApiError) => {
+      console.log(error);
       Swal.fire({
         title: "로그인 실패",
-        text: "로그인 실패: " + (error?.response?.message || "알 수 없는 오류"),
+        text: "로그인 실패: " + (error?.message || "알 수 없는 오류"),
         icon: "error",
       });
     },
@@ -98,7 +87,7 @@ export const useMe = () => {
   return useQuery({
     queryKey: ["me"],
     queryFn: fetchMe,
-    enabled: !!getAccessToken,
+    enabled: !!getAccessToken(),
   });
 };
 
@@ -120,10 +109,10 @@ export const checkNicknameDuplicate = async (
 };
 
 export const useNickname = (nickname?: string, enabled = true) => {
-  return useQuery({
+  return useQuery<CheckDuplicateDto, ApiError>({
     queryKey: ["nickname", nickname],
     queryFn: () => checkNicknameDuplicate(nickname!),
-    enabled: enabled,
+    enabled: enabled && !!nickname && nickname.trim() !== "",
     retry: false,
   });
 };
@@ -144,17 +133,35 @@ export const checkEmailDuplicate = async (
     throw error;
   }
 };
-export const useEmail = (email?: string, enabled = true) => {
-  return useQuery({
-    // mutationFn: checkEmailDuplicate,
-    // onSuccess: (data) => {
-    //   onSuccess();
-    // },
-    // onError: (error: any) => {},
 
+export const useEmail = (email?: string, enabled = true) => {
+  return useQuery<CheckDuplicateDto, ApiError>({
     queryKey: ["email", email],
     queryFn: () => checkEmailDuplicate(email!),
-    enabled: enabled,
+    enabled: enabled && !!email && email.trim() !== "",
     retry: false,
+  });
+};
+
+// 토큰 갱신
+export const refreshToken = async (
+  requestData: RefreshTokenRequestDto
+): Promise<RefreshTokenResponseDto> => {
+  const data = await fetchWithAuth("/v1/auth/refresh", {
+    method: "POST",
+    body: JSON.stringify(requestData),
+  });
+  return data as RefreshTokenResponseDto;
+};
+
+export const useRefreshToken = () => {
+  return useMutation({
+    mutationFn: refreshToken,
+    onSuccess: (data) => {
+      saveTokens(data);
+    },
+    onError: (error: ApiError) => {
+      console.error("토큰 갱신 실패:", error);
+    },
   });
 };

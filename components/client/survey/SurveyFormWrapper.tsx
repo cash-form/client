@@ -5,40 +5,31 @@ import BasicSettings from "./BasicSettings";
 import SelectType from "./SelectType";
 import SurveyFooter from "./SurveyFooter";
 import { useSurveyMutation } from "../../../src/lib/queries/survey";
-
-interface SurveyFormData {
-  title: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  headerImages: File[];
-  questions: any[];
-  footerText: string;
-  footerImages: File[];
-  product: "basic" | "deluxe" | "premium" | "professional";
-}
+import { SurveyFormDto } from "../../../src/dtos/survey/request.dto";
+import { FormState, convertQuestionType } from "../../../src/types/survey";
 
 export default function SurveyFormWrapper() {
-  const [formData, setFormData] = useState<SurveyFormData>({
+  const [formData, setFormData] = useState<FormState>({
     title: "",
     startDate: "",
     endDate: "",
-    description: "",
-    headerImages: [],
+    header: {
+      text: "",
+      images: [],
+    },
     questions: [],
-    footerText: "",
-    footerImages: [],
-    product: "basic",
+    footer: {
+      text: "",
+      images: [],
+    },
+    product: 1,
   });
 
   const { mutate: registerSurvey } = useSurveyMutation();
 
-  const handleBasicSettingsChange = useCallback(
-    (data: Partial<SurveyFormData>) => {
-      setFormData((prev) => ({ ...prev, ...data }));
-    },
-    []
-  );
+  const handleBasicSettingsChange = useCallback((data: Partial<FormState>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  }, []);
 
   const handleQuestionAdd = useCallback((questions: any[]) => {
     setFormData((prev) => ({
@@ -47,9 +38,12 @@ export default function SurveyFormWrapper() {
     }));
   }, []);
 
-  const handleFooterChange = useCallback((data: Partial<SurveyFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  }, []);
+  const handleFooterChange = useCallback(
+    (data: Partial<Pick<FormState, "footer">>) => {
+      setFormData((prev) => ({ ...prev, ...data }));
+    },
+    []
+  );
 
   const convertImageToBase64 = useCallback(
     async (file: File): Promise<string> => {
@@ -71,8 +65,8 @@ export default function SurveyFormWrapper() {
 
   const handleSubmit = useCallback(async () => {
     try {
-      const processedImages = await Promise.all(
-        formData.headerImages.map(async (image: File) => {
+      const processedHeaderImages = await Promise.all(
+        formData.header.images.map(async (image: File) => {
           return await convertImageToBase64(image);
         })
       );
@@ -82,8 +76,7 @@ export default function SurveyFormWrapper() {
           const { id, ...questionWithoutId } = question;
           return {
             ...questionWithoutId,
-            multipleCount:
-              question.type === "multiple" ? question.multipleCount : 0,
+            type: convertQuestionType(question.type),
             images: await Promise.all(
               question.images.map(
                 async (image: File) => await convertImageToBase64(image)
@@ -94,7 +87,7 @@ export default function SurveyFormWrapper() {
       );
 
       const processedFooterImages = await Promise.all(
-        formData.footerImages.map(async (image: File) => {
+        formData.footer.images.map(async (image: File) => {
           return await convertImageToBase64(image);
         })
       );
@@ -103,23 +96,23 @@ export default function SurveyFormWrapper() {
         return new Date(date).toISOString();
       };
 
-      const requestData = {
+      const requestData: SurveyFormDto = {
         product: formData.product,
         title: formData.title,
         startDate: formatDate(formData.startDate),
         endDate: formatDate(formData.endDate),
         header: {
-          text: formData.description,
-          images: processedImages,
+          text: formData.header.text,
+          images: processedHeaderImages,
         },
         questions: processedQuestionImages,
         footer: {
-          text: formData.footerText,
+          text: formData.footer.text,
           images: processedFooterImages,
         },
       };
 
-      console.log("전송할 데이터:", requestData);
+      console.log("requestData:", requestData);
       registerSurvey(requestData);
     } catch (error) {
       console.error("설문 등록 중 오류 발생:", error);
@@ -136,7 +129,6 @@ export default function SurveyFormWrapper() {
     }
 
     for (const question of formData.questions) {
-      console.log(question);
       if (!question.text) {
         return false;
       }
@@ -160,7 +152,10 @@ export default function SurveyFormWrapper() {
       {/* 질문 추가 */}
       <SelectType onQuestionAdd={handleQuestionAdd} />
       {/* 설문조사 하단 내용 */}
-      <SurveyFooter formData={formData} onChange={handleFooterChange} />
+      <SurveyFooter
+        formData={{ footer: formData.footer }}
+        onChange={handleFooterChange}
+      />
       <div className="mt-8">
         <button
           onClick={handleSubmit}

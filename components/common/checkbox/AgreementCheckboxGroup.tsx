@@ -1,10 +1,13 @@
 import React from "react";
-import CommonCheckbox from "./CommonCheckbox";
+import { Checkbox } from "src/components/ui/checkbox";
+import { Label } from "src/components/ui/label";
 
 interface Agreements {
   all: boolean;
   terms: boolean;
   privacy: boolean;
+  marketing: boolean;
+  newsletter: boolean;
 }
 
 interface AgreementCheckboxGroupProps {
@@ -17,42 +20,47 @@ const AgreementCheckboxGroup: React.FC<AgreementCheckboxGroupProps> = ({
   onCheckbox,
 }) => (
   <div className="space-y-3 py-4 border-t border-gray-200 mb-0">
-    <CommonCheckbox
-      id="agree-all"
-      checked={agreements.all}
-      onChange={() => onCheckbox("all")}
-      label={"모두 동의"}
-      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-    />
+    <div className="flex items-center gap-2">
+      <Checkbox
+        id="agree-all"
+        checked={agreements.all}
+        onCheckedChange={() => onCheckbox("all")}
+      />
+      <Label htmlFor="agree-all" className="text-sm">
+        모두 동의
+      </Label>
+    </div>
     <div className="pl-6 space-y-2">
-      <CommonCheckbox
-        id="agree-terms"
-        checked={agreements.terms}
-        onChange={() => onCheckbox("terms")}
-        label={
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="agree-terms"
+          checked={agreements.terms}
+          onCheckedChange={() => onCheckbox("terms")}
+        />
+        <Label htmlFor="agree-terms" className="text-sm">
           <>
             <span className="text-caution">(필수)</span>
-            <a href="#" className="text-foreground hover:text-primary ml-1">
+            <a href="#" className=" hover:text-primary ml-1">
               이용약관
             </a>
           </>
-        }
-        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-      />
-      <CommonCheckbox
-        id="agree-privacy"
-        checked={agreements.privacy}
-        onChange={() => onCheckbox("privacy")}
-        label={
+        </Label>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="agree-privacy"
+          checked={agreements.privacy}
+          onCheckedChange={() => onCheckbox("privacy")}
+        />
+        <Label htmlFor="agree-privacy" className="text-sm">
           <>
             <span className="text-caution">(필수)</span>
-            <a href="#" className="text-foreground hover:text-primary ml-1">
+            <a href="#" className=" hover:text-primary ml-1">
               개인정보 취급방침
             </a>
           </>
-        }
-        className="h-4 w-4 rounded"
-      />
+        </Label>
+      </div>
     </div>
   </div>
 );

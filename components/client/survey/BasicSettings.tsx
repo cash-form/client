@@ -1,18 +1,16 @@
 "use client";
 
 import Swal from "sweetalert2";
+import { FormState } from "../../../src/types/survey";
 
-interface SurveyFormData {
-  title: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  headerImages: File[];
-}
+type BasicSettingsFields = Pick<
+  FormState,
+  "title" | "startDate" | "endDate" | "header" | "product"
+>;
 
 interface BasicSettingsProps {
-  formData: SurveyFormData;
-  onChange: (data: Partial<SurveyFormData>) => void;
+  formData: BasicSettingsFields;
+  onChange: (data: Partial<BasicSettingsFields>) => void;
 }
 
 export default function BasicSettings({
@@ -22,7 +20,7 @@ export default function BasicSettings({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      const totalFiles = [...formData.headerImages, ...newFiles];
+      const totalFiles = [...(formData.header.images || []), ...newFiles];
 
       if (totalFiles.length > 2) {
         Swal.fire({
@@ -33,15 +31,25 @@ export default function BasicSettings({
         return;
       }
 
-      onChange({ headerImages: totalFiles });
+      onChange({
+        header: {
+          ...formData.header,
+          images: totalFiles,
+        },
+      });
     }
     e.target.value = "";
   };
 
   const handleImageDelete = (index: number) => {
-    const newImages = [...formData.headerImages];
+    const newImages = [...formData.header.images];
     newImages.splice(index, 1);
-    onChange({ headerImages: newImages });
+    onChange({
+      header: {
+        ...formData.header,
+        images: newImages,
+      },
+    });
   };
 
   return (
@@ -83,8 +91,15 @@ export default function BasicSettings({
           className="w-full p-3 border rounded-lg"
           placeholder="설문조사 전 안내 사항을 입력하세요. (최대 1000자)"
           maxLength={1000}
-          value={formData.description}
-          onChange={(e) => onChange({ description: e.target.value })}
+          value={formData.header.text}
+          onChange={(e) =>
+            onChange({
+              header: {
+                ...formData.header,
+                text: e.target.value,
+              },
+            })
+          }
         />
       </div>
       <div>
@@ -101,20 +116,20 @@ export default function BasicSettings({
           <label
             htmlFor="image-upload"
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer ${
-              formData.headerImages.length >= 2
+              formData.header.images.length >= 2
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
           >
             <span className="text-xl">📷</span>
             <span className="text-sm font-medium">
-              {formData.headerImages.length >= 2
+              {formData.header.images.length >= 2
                 ? "이미지 최대 개수 도달"
                 : "이미지 추가"}
             </span>
           </label>
           <div className="mt-2 space-y-2">
-            {formData.headerImages.map((file, index) => (
+            {formData.header.images.map((file, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between text-sm text-foreground bg-background p-2 rounded"

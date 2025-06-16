@@ -5,9 +5,14 @@
   --foreground: #171717;
   --primary: #0095b3;
   --secondary: #00bb7d;
+  --banner-dark: #1a365d;
   --warning: #ffb300;
   --caution: #ff4d4d;
   --border: #6f7074;
+  --black: #000000;
+  --white: #ffffff;
+  --font-geist-sans: "Geist Sans", sans-serif;
+  --font-geist-mono: "Geist Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,9 +21,12 @@
     --foreground: #ededed;
     --primary: #1cdaff;
     --secondary: #00fca8;
+    --banner-dark: #1a365d;
     --warning: #ff9800;
-    --caution: #ff4d4d;
+    --caution: #252525;
     --border: #e5e7eb;
+    --black: #000000;
+    --white: #ffffff;
   }
 }
 
@@ -27,86 +35,141 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
+  --color-banner-dark: var(--banner-dark);
   --color-warning: var(--warning);
   --color-caution: var(--caution);
+  --color-border: var(--border);
+  --color-black: var(--black);
+  --color-white: var(--white);
+  --color-ring: var(--primary);
+  --color-input: var(--border);
+  --color-muted-foreground: #6b7280;
+  --color-destructive: var(--caution);
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0f172a;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/*  모바일 (375px 이상) */
-@media (min-width: 375px) {
-  .mobile\:mx-4 {
-    margin-left: 1rem;
-    margin-right: 1rem;
+/* 텍스트 그림자 유틸리티 */
+.text-shadow-sm {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.text-shadow-lg {
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 애니메이션 유틸리티 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  .mobile\:p-4 {
-    padding: 1rem;
-  }
-  .mobile\:p-5 {
-    padding: 1.25rem;
-  }
-  .mobile\:text-lg {
-    font-size: 1.125rem;
-  }
-  .mobile\:text-xl {
-    font-size: 1.25rem;
-  }
-  .mobile\:min-w-10 {
-    min-width: 2.5rem;
-  }
-  .mobile\:min-h-10 {
-    min-height: 2.5rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/*  태블릿 (768px 이상) */
-@media (min-width: 768px) {
-  .tablet\:mx-6 {
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
-  }
-  .tablet\:p-5 {
-    padding: 1.25rem;
-  }
-  .tablet\:p-6 {
-    padding: 1.5rem;
-  }
-  .tablet\:text-xl {
-    font-size: 1.25rem;
-  }
-  .tablet\:text-2xl {
-    font-size: 1.5rem;
-  }
-  .tablet\:min-w-12 {
-    min-width: 3rem;
-  }
-  .tablet\:min-h-12 {
-    min-height: 3rem;
-  }
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
 }
 
-/*  데스크톱 (1440px 이상) */
-@media (min-width: 1440px) {
-  .desktop\:mx-8 {
-    margin-left: 2rem;
-    margin-right: 2rem;
-  }
-  .desktop\:p-6 {
-    padding: 1.5rem;
-  }
-  .desktop\:p-8 {
-    padding: 2rem;
-  }
-  .desktop\:text-2xl {
-    font-size: 1.5rem;
-  }
-  .desktop\:text-3xl {
-    font-size: 1.875rem;
-  }
+.animation-delay-200 {
+  animation-delay: 0.2s;
+  opacity: 0;
 }
 
+.animation-delay-400 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+/* Tailwind 커스텀 클래스 확장 (tailwind.config.js에 추가 가능) */
+@layer utilities {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+@layer base {
+  /* h1: 모바일부터 데스크탑까지 유동적인 크기(clamp)로 지정 */
+  h1 {
+    @apply font-bold;
+    font-size: clamp(1.875rem, 5vw, 3rem); /* 30px ~ 48px */
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    @apply font-semibold;
+    font-size: clamp(1.5rem, 4vw, 2.5rem); /* 24px ~ 40px */
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
+  }
+
+  h3 {
+    @apply font-medium;
+    font-size: clamp(1.25rem, 3vw, 2rem); /* 20px ~ 32px */
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
+  }
+
+  /* 본문 텍스트 기본 */
+  p {
+    @apply leading-relaxed mb-4;
+  }
+}
+/* 300px 미만일 때 전체 페이지를 비례 축소 (유튜브 방식) */
+@media (max-width: 299px) {
+  html {
+    /* 현재 화면 너비에 맞춰 비례 축소 */
+    zoom: calc(100vw / 300px);
+
+    /* 또는 transform 사용 */
+    /* transform: scale(calc(100vw / 300));
+    transform-origin: top left; */
+  }
+
+  body {
+    /* 가로 스크롤 완전 제거 */
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* 더 세밀한 제어를 원한다면 */
+@media (max-width: 299px) {
+  * {
+    /* 모든 요소의 최소 너비 제한 해제 */
+    min-width: unset !important;
+  }
+
+  html {
+    zoom: calc(100vw / 300px);
+  }
+
+  body {
+    overflow-x: hidden;
+    width: 100vw;
+  }
 }

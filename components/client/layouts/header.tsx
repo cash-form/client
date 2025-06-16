@@ -9,7 +9,6 @@ import LoginForm from "components/client/form/loginForm";
 import { useSearchParams } from "next/navigation";
 import { useLoginModalStore } from "src/stores/useLoginModalStore";
 import { useMe } from "src/lib/queries/user";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
   return (
@@ -48,7 +47,7 @@ function HeaderContent() {
               alt="cash form logo"
               className="w-8 h-8 object-contain "
             />
-            <h1 className="text-xl font-bold min-w-28 whitespace-nowrap">
+            <h1 className="text-xl font-bold min-w-28 whitespace-nowrap m-0">
               CASH FORM
             </h1>
           </Linker>
@@ -69,7 +68,7 @@ function HeaderContent() {
                 location.reload();
               }}
             >
-              <p className="text-lg text-primary font-bold">로그아웃</p>
+              <p className="text-lg text-primary font-bold m-0">로그아웃</p>
               {/* TODO: 로그아웃 처리 */}
             </span>
           ) : (
@@ -93,17 +92,17 @@ function HeaderContent() {
             onClick={handleToggleMobileMenu}
           >
             <span
-              className={`block h-0.5 w-6 bg-gray-700 transition-transform duration-300 ${
+              className={`block h-0.5 w-6 bg-foreground transition-transform duration-300 ${
                 isMobileMenuOpen ? "rotate-45 translate-y-1.5" : ""
               }`}
             />
             <span
-              className={`block h-0.5 w-6 bg-gray-700 mt-1 transition-opacity duration-300 ${
+              className={`block h-0.5 w-6 bg-foreground mt-1 transition-opacity duration-300 ${
                 isMobileMenuOpen ? "opacity-0" : ""
               }`}
             />
             <span
-              className={`block h-0.5 w-6 bg-gray-700 mt-1 transition-transform duration-300 ${
+              className={`block h-0.5 w-6 bg-foreground mt-1 transition-transform duration-300 ${
                 isMobileMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
               }`}
             />
@@ -114,7 +113,7 @@ function HeaderContent() {
       {/* 모바일 드롭다운 메뉴 */}
       {isMobileMenuOpen && (
         <div
-          className="md:hidden fixed top-14 left-0 w-full bg-white border-b border-border shadow-lg z-20 overflow-y-auto"
+          className="md:hidden fixed top-14 left-0 w-full bg-background border-b border-border shadow-lg z-20 overflow-y-auto"
           onClick={handleToggleMobileMenu}
         >
           <div className=" p-4 flex-col ">

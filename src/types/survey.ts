@@ -5,7 +5,31 @@ export type QuestionType =
   | "ox"
   | "point";
 
-export type Product = "basic" | "deluxe" | "premium" | "professional";
+export const questionTypeToNumber = {
+  multiple: 1,
+  subjective: 2,
+  descriptive: 3,
+  ox: 4,
+  point: 5,
+} as const;
+
+export const convertQuestionType = (type: QuestionType): number => {
+  return questionTypeToNumber[type];
+};
+
+export type Product = 1 | 2 | 3 | 4;
+
+export const productToString = {
+  1: "basic",
+  2: "deluxe",
+  3: "premium",
+  4: "professional",
+} as const;
+
+export interface ContentSection {
+  text: string;
+  images: File[];
+}
 
 interface BaseQuestion {
   id: string;
@@ -13,6 +37,9 @@ interface BaseQuestion {
   title: string;
   text: string;
   images: File[];
+  options: string[];
+  multipleCount: number;
+  maxLength: number;
 }
 
 export interface MultipleChoiceQuestion extends BaseQuestion {
@@ -57,19 +84,14 @@ export type Question =
   | OXQuestion
   | PointQuestion;
 
-interface ContentSection {
-  text: string;
-  images: File[];
-}
-
-export interface SurveyFormData {
-  product: Product;
+export interface FormState {
   title: string;
   startDate: string;
   endDate: string;
   header: ContentSection;
   questions: Question[];
   footer: ContentSection;
+  product: Product;
 }
 
 export interface QuestionTypeInfo {
