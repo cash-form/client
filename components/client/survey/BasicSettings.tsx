@@ -1,150 +1,302 @@
 "use client";
 
-import Swal from "sweetalert2";
+import { useState, useEffect, useMemo } from "react";
 import { FormState } from "../../../src/types/survey";
-
-type BasicSettingsFields = Pick<
-  FormState,
-  "title" | "startDate" | "endDate" | "header" | "product"
->;
+import { PlanConfig } from "../../../src/config/plan.config";
+import { ImageType } from "../../../src/types/image";
+import ImageUploader from "./ImageUploader";
+import Swal from "sweetalert2";
 
 interface BasicSettingsProps {
-  formData: BasicSettingsFields;
-  onChange: (data: Partial<BasicSettingsFields>) => void;
+  formData: FormState;
+  onChange: (data: Partial<FormState>) => void;
+  planConfig: PlanConfig;
 }
 
 export default function BasicSettings({
   formData,
   onChange,
+  planConfig,
 }: BasicSettingsProps) {
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      const totalFiles = [...(formData.header.images || []), ...newFiles];
+  const [title, setTitle] = useState(formData.title);
+  const [startDate, setStartDate] = useState(formData.startDate);
+  const [endDate, setEndDate] = useState(formData.endDate);
+  const [headerText, setHeaderText] = useState(formData.header.text);
+  const [headerImages, setHeaderImages] = useState<string[]>(
+    formData.header.images
+  );
 
-      if (totalFiles.length > 2) {
-        Swal.fire({
-          title: "이미지는 최대 2장까지만 첨부 가능합니다.",
-          icon: "error",
-        });
-        e.target.value = "";
-        return;
-      }
+  const maxTextLength = planConfig.maxQuestions <= 20 ? 500 : 2000;
 
-      onChange({
-        header: {
-          ...formData.header,
-          images: totalFiles,
-        },
+  const minDateTime = useMemo(() => {
+    const now = new Date();
+    return now.toISOString().slice(0, 16);
+  }, []);
+
+  const handleStartDateChange = (value: string) => {
+    const selectedDate = new Date(value);
+    const now = new Date();
+
+    if (selectedDate < now) {
+      Swal.fire({
+        title: "날짜 선택 오류",
+        text: "시작일은 현재 시간보다 이전으로 설정할 수 없습니다.",
+        icon: "warning",
+      });
+      return;
+    }
+
+    if (endDate && new Date(endDate) <= selectedDate) {
+      setEndDate("");
+      Swal.fire({
+        title: "종료일 초기화",
+        text: "시작일이 변경되어 종료일을 다시 선택해주세요.",
+        icon: "info",
       });
     }
-    e.target.value = "";
+
+    setStartDate(value);
   };
 
-  const handleImageDelete = (index: number) => {
-    const newImages = [...formData.header.images];
-    newImages.splice(index, 1);
+  const handleEndDateChange = (value: string) => {
+    if (!startDate) {
+      Swal.fire({
+        title: "시작일 선택 필요",
+        text: "종료일을 선택하기 전에 시작일을 먼저 선택해주세요.",
+        icon: "warning",
+      });
+      return;
+    }
+
+    const selectedEndDate = new Date(value);
+    const selectedStartDate = new Date(startDate);
+
+    if (selectedEndDate <= selectedStartDate) {
+      Swal.fire({
+        title: "날짜 선택 오류",
+        text: "종료일은 시작일보다 이후로 설정해야 합니다.",
+        icon: "warning",
+      });
+      return;
+    }
+
+    setEndDate(value);
+  };
+
+  useEffect(() => {
     onChange({
+      title,
+      startDate,
+      endDate,
       header: {
-        ...formData.header,
-        images: newImages,
+        text: headerText,
+        images: headerImages,
       },
     });
-  };
+  }, [title, startDate, endDate, headerText, headerImages, onChange]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">설문조사 제목</label>
-        <input
-          type="text"
-          className="w-full p-3 border rounded-lg"
-          placeholder="설문조사 제목을 입력하세요"
-          value={formData.title}
-          onChange={(e) => onChange({ title: e.target.value })}
-        />
+    <div
+      className="rounded-xl border p-8"
+      style={{
+        backgroundColor: "var(--color-white)",
+        borderColor: "color-mix(in srgb, var(--color-gray) 20%, transparent)",
+      }}
+    >
+      <div className="mb-8">
+        <h3
+          className="text-xl font-semibold mb-2"
+          style={{ color: "var(--color-gray)" }}
+        >
+          기본 설정
+        </h3>
+        <p
+          style={{
+            color: "color-mix(in srgb, var(--color-gray) 60%, transparent)",
+          }}
+        >
+          설문조사의 기본 정보를 입력해주세요
+        </p>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+
+      <div className="space-y-6">
+        {/* 설문조사 제목 */}
         <div>
-          <label className="block text-sm font-medium mb-1">설문 시작일</label>
-          <input
-            type="datetime-local"
-            className="w-full p-3 border rounded-lg [&::-webkit-calendar-picker-indicator]:hover:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter-[brightness(0)_saturate(100%)_invert(var(--foreground-invert))]"
-            value={formData.startDate}
-            onChange={(e) => onChange({ startDate: e.target.value })}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">설문 종료일</label>
-          <input
-            type="datetime-local"
-            className="w-full p-3 border rounded-lg [&::-webkit-calendar-picker-indicator]:hover:cursor-pointer [&::-webkit-calendar-picker-indicator]:filter-[brightness(0)_saturate(100%)_invert(var(--foreground-invert))]"
-            value={formData.endDate}
-            onChange={(e) => onChange({ endDate: e.target.value })}
-          />
-        </div>
-      </div>
-      <div>
-        <label>설문조사 전 안내 사항</label>
-        <textarea
-          rows={4}
-          className="w-full p-3 border rounded-lg"
-          placeholder="설문조사 전 안내 사항을 입력하세요. (최대 1000자)"
-          maxLength={1000}
-          value={formData.header.text}
-          onChange={(e) =>
-            onChange({
-              header: {
-                ...formData.header,
-                text: e.target.value,
-              },
-            })
-          }
-        />
-      </div>
-      <div>
-        <label>첨부 이미지(최대 2장)</label>
-        <div>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-            id="image-upload"
-            multiple
-          />
           <label
-            htmlFor="image-upload"
-            className={`flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer ${
-              formData.header.images.length >= 2
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
+            className="block text-sm font-medium mb-2"
+            style={{
+              color: "color-mix(in srgb, var(--color-gray) 70%, transparent)",
+            }}
           >
-            <span className="text-xl">📷</span>
-            <span className="text-sm font-medium">
-              {formData.header.images.length >= 2
-                ? "이미지 최대 개수 도달"
-                : "이미지 추가"}
-            </span>
+            설문조사 제목
           </label>
-          <div className="mt-2 space-y-2">
-            {formData.header.images.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between text-sm text-foreground bg-background p-2 rounded"
-              >
-                <span>{file.name}</span>
-                <button
-                  onClick={() => handleImageDelete(index)}
-                  className="text-warning hover:text-warning/80"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="설문조사 제목을 입력하세요"
+            maxLength={100}
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
+            style={
+              {
+                borderColor:
+                  "color-mix(in srgb, var(--color-gray) 30%, transparent)",
+                "--tw-ring-color": "var(--color-blue)",
+              } as React.CSSProperties
+            }
+          />
+          <div
+            className="text-xs mt-1"
+            style={{
+              color: "color-mix(in srgb, var(--color-gray) 50%, transparent)",
+            }}
+          >
+            {title.length}/100자
           </div>
         </div>
+
+        {/* 설문 기간 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{
+                color: "color-mix(in srgb, var(--color-gray) 70%, transparent)",
+              }}
+            >
+              시작일
+            </label>
+            <input
+              type="datetime-local"
+              value={startDate}
+              min={minDateTime}
+              onChange={(e) => handleStartDateChange(e.target.value)}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
+              style={
+                {
+                  borderColor:
+                    "color-mix(in srgb, var(--color-gray) 30%, transparent)",
+                  "--tw-ring-color": "var(--color-blue)",
+                } as React.CSSProperties
+              }
+            />
+          </div>
+          <div>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{
+                color: "color-mix(in srgb, var(--color-gray) 70%, transparent)",
+              }}
+            >
+              종료일
+            </label>
+            <input
+              type="datetime-local"
+              value={endDate}
+              min={startDate || minDateTime}
+              onChange={(e) => handleEndDateChange(e.target.value)}
+              disabled={!startDate}
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent"
+              style={
+                {
+                  borderColor:
+                    "color-mix(in srgb, var(--color-gray) 30%, transparent)",
+                  backgroundColor: !startDate
+                    ? "color-mix(in srgb, var(--color-gray) 10%, transparent)"
+                    : "transparent",
+                  cursor: !startDate ? "not-allowed" : "text",
+                  "--tw-ring-color": "var(--color-blue)",
+                } as React.CSSProperties
+              }
+            />
+          </div>
+        </div>
+
+        {/* 헤더 텍스트 */}
+        <div>
+          <label
+            className="block text-sm font-medium mb-2"
+            style={{
+              color: "color-mix(in srgb, var(--color-gray) 70%, transparent)",
+            }}
+          >
+            질문 전 안내사항, 요구사항, 주의사항을 서술해주세요
+          </label>
+          <textarea
+            value={headerText}
+            onChange={(e) => setHeaderText(e.target.value)}
+            placeholder="설문조사 상단에 표시될 설명을 입력하세요"
+            maxLength={maxTextLength}
+            rows={4}
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent resize-none"
+            style={
+              {
+                borderColor:
+                  "color-mix(in srgb, var(--color-gray) 30%, transparent)",
+                "--tw-ring-color": "var(--color-blue)",
+              } as React.CSSProperties
+            }
+          />
+          <div
+            className="text-xs mt-1"
+            style={{
+              color: "color-mix(in srgb, var(--color-gray) 50%, transparent)",
+            }}
+          >
+            {headerText.length}/{maxTextLength}자
+          </div>
+        </div>
+
+        {/* 헤더 이미지 */}
+        {planConfig.maxImages > 0 ? (
+          <div>
+            <label
+              className="block text-sm font-medium mb-2"
+              style={{
+                color: "color-mix(in srgb, var(--color-gray) 70%, transparent)",
+              }}
+            >
+              설문조사 요구사항에 보일 이미지를 선택해주세요.
+            </label>
+            <ImageUploader
+              images={headerImages}
+              onChange={setHeaderImages}
+              maxImages={planConfig.maxImages}
+              id="header-image-upload"
+              imageType={ImageType.SURVEY}
+            />
+            <div
+              className="text-xs mt-1"
+              style={{
+                color: "color-mix(in srgb, var(--color-gray) 50%, transparent)",
+              }}
+            >
+              최대 {planConfig.maxImages}개까지 업로드 가능
+            </div>
+          </div>
+        ) : (
+          <div
+            className="p-4 border rounded-lg"
+            style={{
+              backgroundColor:
+                "color-mix(in srgb, var(--color-amber) 5%, transparent)",
+              borderColor:
+                "color-mix(in srgb, var(--color-amber) 20%, transparent)",
+            }}
+          >
+            <p
+              className="text-sm"
+              style={{
+                color:
+                  "color-mix(in srgb, var(--color-amber) 70%, var(--color-gray) 30%)",
+              }}
+            >
+              💡 현재 요금제에서는 이미지를 사용할 수 없습니다.
+              <br />
+              이미지 기능을 사용하려면 DELUXE 이상의 요금제를 선택해주세요.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

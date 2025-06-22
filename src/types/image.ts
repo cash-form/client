@@ -4,3 +4,13 @@ export enum ImageType {
   PRODUCT = 3,
   GENERAL = 4,
 }
+
+export interface ImageUploadResponse {
+  id: number;
+  type: number;
+  url: string;
+  originalName: string;
+  size: number;
+  mimeType: string;
+  createdAt: string;
+}
