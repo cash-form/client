@@ -3,26 +3,31 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
+import { useImageUploadMutation } from "../../../src/lib/queries/image";
+import { ImageType } from "../../../src/types/image";
 
 interface ImageUploaderProps {
-  images: File[];
-  onChange: (images: File[]) => void;
-  maxImages?: number;
-  id: string;
+  images: string[];
+  maxImages: number;
+  onChange: (images: string[]) => void;
+  imageType: ImageType;
+  className?: string;
 }
 
 export default function ImageUploader({
   images,
+  maxImages,
   onChange,
-  maxImages = 2,
-  id,
+  imageType,
+  className = "",
 }: ImageUploaderProps) {
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const imageUploadMutation = useImageUploadMutation();
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      const totalFiles = [...images, ...newFiles];
 
-      if (totalFiles.length > maxImages) {
+      if (images.length + newFiles.length > maxImages) {
         Swal.fire({
           title: `이미지는 최대 ${maxImages}장까지만 첨부 가능합니다.`,
           icon: "error",
@@ -31,23 +36,39 @@ export default function ImageUploader({
         return;
       }
 
-      onChange(totalFiles);
+      // 각 파일을 순차적으로 업로드
+      for (const file of newFiles) {
+        try {
+          const response = await imageUploadMutation.mutateAsync({
+            file,
+            type: imageType,
+          });
+
+          // 업로드된 이미지 URL을 추가
+          onChange([...images, response.url]);
+        } catch (error) {
+          console.error("이미지 업로드 실패:", error);
+          Swal.fire({
+            title: "이미지 업로드 실패",
+            text: "이미지를 업로드하는 중 오류가 발생했습니다.",
+            icon: "error",
+          });
+        }
+      }
     }
     e.target.value = "";
   };
 
-  const handleImageDelete = (index: number) => {
-    const newImages = [...images];
-    newImages.splice(index, 1);
+  const removeImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
     onChange(newImages);
   };
 
+  const id = `image-uploader-${imageType}`;
+
   return (
-    <div>
-      <label className="block text-sm font-medium mb-2">
-        이미지 (최대 {maxImages}장)
-      </label>
-      <div>
+    <div className={`space-y-4 ${className}`}>
+      <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
         <input
           type="file"
           accept="image/*"
@@ -55,38 +76,51 @@ export default function ImageUploader({
           className="hidden"
           id={id}
           multiple
+          disabled={imageUploadMutation.isPending}
         />
         <label
           htmlFor={id}
           className={`inline-flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:border-primary transition-colors ${
-            images.length >= maxImages ? "opacity-50 cursor-not-allowed" : ""
+            images.length >= maxImages || imageUploadMutation.isPending
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
         >
           <FontAwesomeIcon icon={faImage} className="text-lg" />
           <span className="text-sm font-medium">
-            {images.length >= maxImages
-              ? "이미지 최대 개수 도달"
-              : "이미지 추가"}
+            {imageUploadMutation.isPending
+              ? "업로드 중..."
+              : images.length >= maxImages
+              ? "이미지 제한 달성"
+              : "이미지 첨부하기"}
           </span>
         </label>
-        <div className="mt-2 space-y-2">
-          {images.map((file: File, index: number) => (
-            <div
-              key={index}
-              className="flex items-center justify-between text-sm text-foreground/50 bg-gray-50 p-2 rounded"
-            >
-              <span>{file.name}</span>
+        <p className="text-xs text-gray-500 mt-2">
+          최대 {maxImages}장까지 업로드 가능
+        </p>
+      </div>
+
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((url, index) => (
+            <div key={index} className="relative group">
+              <img
+                src={url}
+                alt={`이미지 ${index + 1}`}
+                className="w-full h-32 object-cover rounded-lg border"
+              />
               <button
-                onClick={() => handleImageDelete(index)}
-                className="text-warning hover:text-warning/80 p-1"
+                onClick={() => removeImage(index)}
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                 type="button"
+                disabled={imageUploadMutation.isPending}
               >
                 <FontAwesomeIcon icon={faXmark} />
               </button>
             </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

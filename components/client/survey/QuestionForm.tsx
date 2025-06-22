@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,7 +10,8 @@ import { QUESTION_TYPE_LABELS } from "../../../src/config/survey.config";
 import ImageUploader from "./ImageUploader";
 import MultipleChoiceOptions from "./MultipleChoiceOptions";
 import Swal from "sweetalert2";
-import { Question, QuestionType } from "../../../src/types/survey";
+import { Question, QuestionType, PlanLimit } from "../../../src/types/survey";
+import { ImageType } from "../../../src/types/image";
 
 interface QuestionFormProps {
   type: QuestionType;
@@ -19,6 +20,7 @@ interface QuestionFormProps {
   onChange: (data: Question) => void;
   initialData: Question;
   "data-id"?: string;
+  planLimits: PlanLimit;
 }
 
 export default function QuestionForm({
@@ -28,6 +30,7 @@ export default function QuestionForm({
   onChange,
   initialData,
   "data-id": dataId,
+  planLimits,
 }: QuestionFormProps) {
   // 드래그앤드롭
   const {
@@ -63,30 +66,6 @@ export default function QuestionForm({
     onChange(newData);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      const totalFiles = [...questionData.images, ...newFiles];
-
-      if (totalFiles.length > 2) {
-        Swal.fire({
-          title: "이미지는 최대 2장까지만 첨부 가능합니다.",
-          icon: "error",
-        });
-        e.target.value = "";
-        return;
-      }
-
-      handleChange({ images: totalFiles });
-    }
-    e.target.value = "";
-  };
-  // 이미지 삭제
-  const handleImageDelete = (index: number) => {
-    const newImages = [...questionData.images];
-    newImages.splice(index, 1);
-    handleChange({ images: newImages });
-  };
   // 옵션 수정
   const handleOptionChange = (index: number, value: string) => {
     if (value.length > 8 && type === "multiple") {
@@ -103,9 +82,9 @@ export default function QuestionForm({
   };
   // 옵션 추가
   const addOption = () => {
-    if (questionData.options.length >= 6) {
+    if (questionData.options.length >= planLimits.maxOptionsPerQuestion) {
       Swal.fire({
-        title: "최대 6개까지만 추가할 수 있습니다.",
+        title: `최대 ${planLimits.maxOptionsPerQuestion}개까지만 추가할 수 있습니다.`,
         icon: "error",
       });
       return;
@@ -123,6 +102,28 @@ export default function QuestionForm({
     }
     const newOptions = questionData.options.filter((_, i) => i !== index);
     handleChange({ options: newOptions });
+  };
+
+  const handleTitleChange = (value: string) => {
+    if (value.length > 50) {
+      Swal.fire({
+        title: "제목은 50자를 초과할 수 없습니다.",
+        icon: "error",
+      });
+      return;
+    }
+    handleChange({ title: value });
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    if (value.length > 200) {
+      Swal.fire({
+        title: "설명은 200자를 초과할 수 없습니다.",
+        icon: "error",
+      });
+      return;
+    }
+    handleChange({ text: value });
   };
 
   return (
@@ -163,26 +164,18 @@ export default function QuestionForm({
           <input
             type="text"
             value={questionData.title}
-            onChange={(e) => {
-              if (e.target.value.length <= 20) {
-                handleChange({ title: e.target.value });
-              }
-            }}
-            placeholder="질문 제목을 입력하세요 (최대 20자)"
+            onChange={(e) => handleTitleChange(e.target.value)}
+            placeholder="질문 제목을 입력하세요 (최대 50자)"
             className="w-full p-3 border rounded-lg mb-4"
-            maxLength={20}
+            maxLength={50}
           />
-          <input
-            type="text"
+          <textarea
             value={questionData.text}
-            onChange={(e) => {
-              if (e.target.value.length <= 30) {
-                handleChange({ text: e.target.value });
-              }
-            }}
-            placeholder="질문 내용을 입력하세요 (최대 30자)"
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            placeholder="질문 내용을 입력하세요 (최대 200자)"
             className="w-full p-3 border rounded-lg mb-4"
-            maxLength={30}
+            rows={3}
+            maxLength={200}
           />
         </>
       ) : (
@@ -190,21 +183,18 @@ export default function QuestionForm({
           <input
             type="text"
             value={questionData.title}
-            onChange={(e) => {
-              if (e.target.value.length <= 20) {
-                handleChange({ title: e.target.value });
-              }
-            }}
-            placeholder="질문 제목을 입력하세요 (최대 20자)"
+            onChange={(e) => handleTitleChange(e.target.value)}
+            placeholder="질문 제목을 입력하세요 (최대 50자)"
             className="w-full p-3 border rounded-lg mb-4"
-            maxLength={20}
+            maxLength={50}
           />
           <textarea
             value={questionData.text}
-            onChange={(e) => handleChange({ text: e.target.value })}
-            placeholder="질문 내용을 입력하세요"
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            placeholder="질문 내용을 입력하세요 (최대 200자)"
             className="w-full p-3 border rounded-lg mb-4"
             rows={3}
+            maxLength={200}
           />
         </>
       )}
@@ -215,6 +205,8 @@ export default function QuestionForm({
             images={questionData.images}
             onChange={(images) => handleChange({ images })}
             id={`question-image-${initialData.id}`}
+            imageType={ImageType.SURVEY}
+            maxImages={planLimits.maxImagesPerSection}
           />
         </div>
       )}

@@ -19,16 +19,16 @@ export const convertQuestionType = (type: QuestionType): number => {
 
 export type Product = 1 | 2 | 3 | 4;
 
-export const productToString = {
-  1: "basic",
-  2: "deluxe",
-  3: "premium",
-  4: "professional",
+export const productNames = {
+  1: "BASIC",
+  2: "DELUXE",
+  3: "PREMIUM",
+  4: "PROFESSIONAL",
 } as const;
 
 export interface ContentSection {
   text: string;
-  images: File[];
+  images: string[];
 }
 
 interface BaseQuestion {
@@ -36,7 +36,7 @@ interface BaseQuestion {
   type: QuestionType;
   title: string;
   text: string;
-  images: File[];
+  images: string[];
   options: string[];
   multipleCount: number;
   maxLength: number;
@@ -98,4 +98,9 @@ export interface QuestionTypeInfo {
   type: QuestionType;
   name: string;
   icon: string;
+}
+
+export interface PlanLimit {
+  maxImagesPerSection: number;
+  maxOptionsPerQuestion: number;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useState, useMemo, useEffect } from "react";
+import { memo, useCallback, useState, useMemo, useEffect, useRef } from "react";
 import useDebounce from "../../../hooks/useDebounce";
 import { Input } from "src/components/ui/input";
 import { Button } from "src/components/ui/button";
@@ -35,8 +35,11 @@ export default function SurveySearchFilter({
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedSort, setSelectedSort] = useState("createdAt-DESC");
 
-  // 검색어 디바운싱 (300ms 지연)
-  const debouncedSearchKeyword = useDebounce(searchKeyword, 300);
+  // 검색어 디바운싱 (500ms 지연)
+  const debouncedSearchKeyword = useDebounce(searchKeyword, 500);
+
+  // 이전 검색어를 추적하기 위한 ref
+  const prevSearchKeywordRef = useRef<string>("");
 
   // 정렬 옵션들
   const sortOptions = useMemo<SortOption[]>(
@@ -52,8 +55,11 @@ export default function SurveySearchFilter({
   );
 
   useEffect(() => {
-    onSearch(debouncedSearchKeyword);
-  }, [debouncedSearchKeyword, onSearch]);
+    if (prevSearchKeywordRef.current !== debouncedSearchKeyword) {
+      prevSearchKeywordRef.current = debouncedSearchKeyword;
+      onSearch(debouncedSearchKeyword);
+    }
+  }, [debouncedSearchKeyword]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +83,7 @@ export default function SurveySearchFilter({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-foreground/20 mb-6">
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         {/* 검색 필드 */}
         <div className="flex-1 max-w-md">
           <div className="relative">

@@ -13,6 +13,10 @@
   --white: #ffffff;
   --font-geist-sans: "Geist Sans", sans-serif;
   --font-geist-mono: "Geist Mono", monospace;
+
+  --gray: #111827;
+  --blue: #3b82f6;
+  --amber: #f59e0b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,10 +27,14 @@
     --secondary: #00fca8;
     --banner-dark: #1a365d;
     --warning: #ff9800;
-    --caution: #252525;
+    --caution: #ff4d4d;
     --border: #e5e7eb;
     --black: #000000;
     --white: #ffffff;
+
+    --gray: #f9fafb;
+    --blue: #60a5fa;
+    --amber: #fbbf24;
   }
 }
 
@@ -49,9 +57,13 @@
   --color-accent-foreground: #0f172a;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-gray: var(--gray);
+  --color-blue: var(--blue);
+  --color-amber: var(--amber);
 }
 
-/* 텍스트 그림자 유틸리티 */
+/* 텍스트 그림자 */
 .text-shadow-sm {
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
@@ -60,7 +72,7 @@
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* 애니메이션 유틸리티 */
+/* 애니메이션  */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -86,7 +98,7 @@
   opacity: 0;
 }
 
-/* Tailwind 커스텀 클래스 확장 (tailwind.config.js에 추가 가능) */
+/* Tailwind 커스텀 클래스 확장  */
 @layer utilities {
   .backdrop-blur-sm {
     backdrop-filter: blur(4px);

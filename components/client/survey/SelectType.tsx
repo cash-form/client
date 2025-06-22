@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { questionTypes } from "src/config/survey.config";
-import QuestionForm from "./QuestionForm";
-import QuestionTypeSelector from "./QuestionTypeSelector";
+import { useCallback } from "react";
 import {
   DndContext,
   closestCenter,
@@ -11,6 +8,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -19,17 +17,26 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Question, QuestionType } from "../../../src/types/survey";
+import { PlanConfig } from "../../../src/config/plan.config";
+import { Button } from "../../../src/components/ui/button";
+import QuestionForm from "./QuestionForm";
+import QuestionTypeSelector from "./QuestionTypeSelector";
+import { questionTypes } from "../../../src/config/survey.config";
+import Swal from "sweetalert2";
 
 interface SelectTypeProps {
+  questions: Question[];
   onQuestionAdd: (questions: Question[]) => void;
+  planConfig: PlanConfig;
+  currentQuestionCount: number;
 }
 
-export default function SelectType({ onQuestionAdd }: SelectTypeProps) {
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
-  const questionsRef = useRef<HTMLDivElement>(null);
-  const nextIdRef = useRef(0);
-
+export default function SelectType({
+  questions,
+  onQuestionAdd,
+  planConfig,
+  currentQuestionCount,
+}: SelectTypeProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -37,122 +44,227 @@ export default function SelectType({ onQuestionAdd }: SelectTypeProps) {
     })
   );
 
-  // questions 추가되거나 삭제되면 부모에게 전달
-  useEffect(() => {
-    onQuestionAdd(questions);
-  }, [questions, onQuestionAdd]);
-
-  // 새로 추가된 질문이 있을때 마다 최신 질문에 스크롤
-  useEffect(() => {
-    if (lastAddedId && questionsRef.current) {
-      const questionElement = questionsRef.current.querySelector(
-        `[data-id="${lastAddedId}"]`
-      );
-      if (questionElement) {
-        questionElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        setLastAddedId(null);
-      }
-    }
-  }, [lastAddedId]);
-
-  // 고유 아이디 생성해서 유니크값
-  const generateQuestionId = useCallback(() => {
-    return `question-${Date.now()}-${nextIdRef.current++}`;
-  }, []);
-
   // 질문 추가
-
   const handleQuestionAdd = useCallback(
     (type: QuestionType) => {
-      const newId = generateQuestionId();
-      const newQuestion = {
-        id: newId,
-        type,
-        title: "",
-        text: "",
-        images: [],
-        options: type === "multiple" ? ["", ""] : [],
-        multipleCount: type === "multiple" ? 1 : 0,
-        maxLength:
-          type === "subjective" ? 30 : type === "descriptive" ? 1000 : 0,
-      } as Question;
+      if (
+        planConfig.maxQuestions > 0 &&
+        currentQuestionCount >= planConfig.maxQuestions
+      ) {
+        Swal.fire({
+          title: "문항 수 제한",
+          text: `현재 요금제에서는 최대 ${planConfig.maxQuestions}개의 문항만 추가할 수 있습니다.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "요금제 변경",
+          cancelButtonText: "확인",
+        });
+        return;
+      }
 
-      setQuestions((prev) => [...prev, newQuestion]);
-      setLastAddedId(newId);
+      const newId = Math.random().toString(36).substr(2, 9);
+
+      let newQuestion: Question;
+
+      switch (type) {
+        case "multiple":
+          newQuestion = {
+            id: newId,
+            type: "multiple",
+            title: "",
+            text: "",
+            images: [],
+            options: ["", ""],
+            multipleCount: 1,
+            maxLength: 0,
+          };
+          break;
+        case "subjective":
+          newQuestion = {
+            id: newId,
+            type: "subjective",
+            title: "",
+            text: "",
+            images: [],
+            options: [] as never[],
+            multipleCount: 0,
+            maxLength: 30,
+          };
+          break;
+        case "descriptive":
+          newQuestion = {
+            id: newId,
+            type: "descriptive",
+            title: "",
+            text: "",
+            images: [],
+            options: [] as never[],
+            multipleCount: 0,
+            maxLength: 1000,
+          };
+          break;
+        case "ox":
+          newQuestion = {
+            id: newId,
+            type: "ox",
+            title: "",
+            text: "",
+            images: [],
+            options: [] as never[],
+            multipleCount: 0,
+            maxLength: 0,
+          };
+          break;
+        case "point":
+          newQuestion = {
+            id: newId,
+            type: "point",
+            title: "",
+            text: "",
+            images: [],
+            options: ["1", "2", "3", "4", "5"],
+            multipleCount: 0,
+            maxLength: 0,
+          };
+          break;
+        default:
+          return;
+      }
+
+      const newQuestions = [...questions, newQuestion];
+      onQuestionAdd(newQuestions);
     },
-    [generateQuestionId]
+    [questions, onQuestionAdd, planConfig.maxQuestions, currentQuestionCount]
   );
-  // 질문 삭제
-  const handleQuestionDelete = useCallback((index: number) => {
-    setQuestions((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+
   // 질문 수정
   const handleQuestionChange = useCallback(
-    (index: number, data: Partial<Question>) => {
-      setQuestions((prev) => {
-        const newQuestions = [...prev];
-        const currentQuestion = newQuestions[index];
-        newQuestions[index] = { ...currentQuestion, ...data } as Question;
-        return newQuestions;
+    (index: number, updatedQuestion: Question) => {
+      const newQuestions = [...questions];
+      newQuestions[index] = updatedQuestion;
+      onQuestionAdd(newQuestions);
+    },
+    [questions, onQuestionAdd]
+  );
+
+  // 질문 삭제
+  const handleQuestionDelete = useCallback(
+    (index: number) => {
+      Swal.fire({
+        title: "문항을 삭제하시겠습니까?",
+        text: "삭제된 문항은 복구할 수 없습니다.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "삭제",
+        cancelButtonText: "취소",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const newQuestions = questions.filter((_, i) => i !== index);
+          onQuestionAdd(newQuestions);
+        }
       });
     },
-    []
+    [questions, onQuestionAdd]
   );
-  // 질문 순서 변경
-  const handleDragEnd = useCallback((event: any) => {
-    const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      setQuestions((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
+  // 드래그 앤 드롭 처리
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  }, []);
+      if (over && active.id !== over.id) {
+        const oldIndex = questions.findIndex((q) => q.id === active.id);
+        const newIndex = questions.findIndex((q) => q.id === over.id);
+
+        const newQuestions = arrayMove(questions, oldIndex, newIndex);
+        onQuestionAdd(newQuestions);
+      }
+    },
+    [questions, onQuestionAdd]
+  );
+
+  // 요금제별 제한사항을 PlanLimit 형태로 변환
+  const planLimits = {
+    maxImagesPerSection: planConfig.maxImages,
+    maxOptionsPerQuestion: 6,
+  };
 
   return (
-    <div className="flex gap-6">
-      {/* 질문선택 */}
-      <QuestionTypeSelector
-        questionTypes={questionTypes}
-        onQuestionAdd={handleQuestionAdd}
-      />
-
-      {/* 추가된 질문 리스트 */}
-      <div className="flex-1">
-        {questions.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            왼쪽에서 질문 유형을 선택하여 추가해주세요
+    <div className="bg-white rounded-xl border border-gray-200 p-8">
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              질문 설정
+            </h3>
+            <p className="text-gray-600">질문을 추가하고 순서를 조정하세요</p>
           </div>
-        ) : (
-          // 드래그앤드롭
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={questions.map((q) => q.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-4" ref={questionsRef}>
-                {questions.map((question, index) => (
-                  <QuestionForm
-                    key={question.id}
-                    type={question.type}
-                    number={index + 1}
-                    initialData={question}
-                    onDelete={() => handleQuestionDelete(index)}
-                    onChange={(data) => handleQuestionChange(index, data)}
-                    data-id={question.id}
-                  />
-                ))}
+          {planConfig.maxQuestions > 0 && (
+            <div className="text-right">
+              <span className="text-sm text-gray-500">문항 수</span>
+              <div className="text-2xl font-semibold text-blue-600">
+                {currentQuestionCount} / {planConfig.maxQuestions}
               </div>
-            </SortableContext>
-          </DndContext>
-        )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex gap-8">
+        {/* 질문 유형 선택 */}
+        <div className="w-64 shrink-0">
+          <QuestionTypeSelector
+            questionTypes={questionTypes}
+            onQuestionAdd={handleQuestionAdd}
+            disabled={
+              planConfig.maxQuestions > 0 &&
+              currentQuestionCount >= planConfig.maxQuestions
+            }
+          />
+        </div>
+
+        {/* 질문 목록 */}
+        <div className="flex-1">
+          {questions.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <div className="text-4xl mb-4">📝</div>
+              <h4 className="text-lg font-medium mb-2">질문을 추가해주세요</h4>
+              <p className="text-sm">
+                왼쪽에서 원하는 질문 유형을 선택하여 설문을 만들어보세요
+              </p>
+            </div>
+          ) : (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={questions.map((q) => q.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-4">
+                  {questions.map((question, index) => (
+                    <QuestionForm
+                      key={question.id}
+                      type={question.type}
+                      number={index + 1}
+                      onDelete={() => handleQuestionDelete(index)}
+                      onChange={(updatedQuestion) =>
+                        handleQuestionChange(index, updatedQuestion)
+                      }
+                      initialData={question}
+                      data-id={question.id}
+                      planLimits={planLimits}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )}
+        </div>
       </div>
     </div>
   );

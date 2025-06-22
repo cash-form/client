@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useInfiniteSurveyList } from "../../../src/lib/queries/survey-list";
 import SurveyGrid from "./SurveyGrid";
 import SurveySearchFilter from "./SurveySearchFilter";
