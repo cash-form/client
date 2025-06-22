@@ -9,10 +9,14 @@ export const useSurveyMutation = () => {
 
   return useMutation<SurveyResponseDto, Error, SurveyFormDto>({
     mutationFn: async (data: SurveyFormDto) => {
-      return fetchWithAuth("/v1/surveys", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return fetchWithAuth(
+        "/v1/surveys",
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        },
+        true
+      );
     },
     onSuccess: () => {
       router.push("/surveys");
