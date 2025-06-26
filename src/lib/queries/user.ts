@@ -16,14 +16,18 @@ import { getAccessToken, saveTokens } from "../api/common.utilitiy";
 import Swal from "sweetalert2";
 import { UserDto } from "src/dtos/user";
 
-// 회원가입
+// 회원가입 - 인증 불필요
 export const registerUser = async (
   requestData: RegisterRequestDto
 ): Promise<RegisterResponseDto> => {
-  const data = await fetchWithAuth("/v1/auth/register", {
-    method: "POST",
-    body: JSON.stringify(requestData),
-  });
+  const data = await fetchWithAuth(
+    "/v1/auth/register",
+    {
+      method: "POST",
+      body: JSON.stringify(requestData),
+    },
+    false
+  );
   return data as RegisterResponseDto;
 };
 
@@ -45,14 +49,18 @@ export const useRegister = (onSuccess: () => void) => {
   });
 };
 
-// 로그인
+// 로그인 - 인증 불필요
 export const loginUser = async (
   requestData: LoginRequestDto
 ): Promise<LoginResponseDto> => {
-  const data = await fetchWithAuth("/v1/auth/login", {
-    method: "POST",
-    body: JSON.stringify(requestData),
-  });
+  const data = await fetchWithAuth(
+    "/v1/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify(requestData),
+    },
+    false
+  );
   return data as LoginResponseDto;
 };
 
@@ -77,7 +85,7 @@ export const useLogin = (onSuccess: () => void) => {
   });
 };
 
-// 내 정보 불러오기
+// 내 정보 불러오기 - 인증 필요 (이미 설정됨)
 export const fetchMe = async (): Promise<UserDto> => {
   const data = await fetchWithAuth("/v1/users/me", { method: "GET" }, true);
   return plainToInstance(UserDto, data);
@@ -91,7 +99,7 @@ export const useMe = () => {
   });
 };
 
-// 닉네임 중복 체크
+// 닉네임 중복 체크 - 공개 API (인증 불필요)
 export const checkNicknameDuplicate = async (
   nickname: string
 ): Promise<CheckDuplicateDto> => {
@@ -100,7 +108,8 @@ export const checkNicknameDuplicate = async (
       `/v1/users/duplicate/name?nickname=${nickname}`,
       {
         method: "GET",
-      }
+      },
+      false
     );
     return plainToInstance(CheckDuplicateDto, data);
   } catch (error) {
@@ -117,7 +126,7 @@ export const useNickname = (nickname?: string, enabled = true) => {
   });
 };
 
-// 이메일 중복 체크
+// 이메일 중복 체크 - 공개 API (인증 불필요)
 export const checkEmailDuplicate = async (
   email: string
 ): Promise<CheckDuplicateDto> => {
@@ -126,7 +135,8 @@ export const checkEmailDuplicate = async (
       `/v1/users/duplicate/account?email=${email}`,
       {
         method: "GET",
-      }
+      },
+      false
     );
     return plainToInstance(CheckDuplicateDto, data);
   } catch (error) {
@@ -143,14 +153,18 @@ export const useEmail = (email?: string, enabled = true) => {
   });
 };
 
-// 토큰 갱신
+// 토큰 갱신 - 인증 불필요 (refreshToken을 사용)
 export const refreshToken = async (
   requestData: RefreshTokenRequestDto
 ): Promise<RefreshTokenResponseDto> => {
-  const data = await fetchWithAuth("/v1/auth/refresh", {
-    method: "POST",
-    body: JSON.stringify(requestData),
-  });
+  const data = await fetchWithAuth(
+    "/v1/auth/refresh",
+    {
+      method: "POST",
+      body: JSON.stringify(requestData),
+    },
+    false
+  );
   return data as RefreshTokenResponseDto;
 };
 

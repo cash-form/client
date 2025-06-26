@@ -36,7 +36,8 @@ export const fetchSurveyList = async (
 
   const response = await fetchWithAuth(
     `${ApiUrlConfig.SURVEYS_LIST}?${query}`,
-    { method: "GET" }
+    { method: "GET" },
+    false
   );
 
   return response as SurveyListResponseDto;
