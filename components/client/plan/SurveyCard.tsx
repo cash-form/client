@@ -1,4 +1,4 @@
-import { planConfig } from "src/config/plan.config";
+import { PLAN_CONFIGS } from "src/config/plan.config";
 import FeatureItem from "./FeatureItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -8,17 +8,22 @@ type SurveyCardProps = {
 };
 
 export default function SurveyCard({ type, data }: SurveyCardProps) {
-  const config = planConfig[type];
+  const config: any = Object.keys(PLAN_CONFIGS).find(
+    (key: any): PLAN_CONFIGS | null => {
+      const plan = PLAN_CONFIGS[key as keyof typeof PLAN_CONFIGS];
+      return plan.name.toLowerCase() === type ? plan : null;
+    }
+  );
 
   return (
     <div
       className={`relative rounded-2xl shadow-lg hover:-translate-y-1 border overflow-hidden  
         bg-white border-border`}
     >
-      <div className={`bg-gradient-to-r ${config.color} p-6 text-white`}>
+      <div className={`bg-gradient-to-r ${config?.color} p-6 text-white`}>
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-white/20 rounded-lg">
-            <FontAwesomeIcon icon={config.icon} className="w-6 h-6" />
+            <FontAwesomeIcon icon={config?.icon} className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-bold uppercase">{type}</h3>
         </div>
