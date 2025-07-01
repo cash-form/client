@@ -6,12 +6,12 @@ import { useSortable } from "@dnd-kit/sortable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGripVertical, faTrash } from "@fortawesome/free-solid-svg-icons";
 import QuestionNumber from "./QuestionNumber";
-import { QUESTION_TYPE_LABELS } from "../../../src/config/survey.config";
+import { QUESTION_TYPE_LABELS } from "src/config/survey.config";
 import ImageUploader from "./ImageUploader";
 import MultipleChoiceOptions from "./MultipleChoiceOptions";
 import Swal from "sweetalert2";
-import { Question, QuestionType, PlanLimit } from "../../../src/types/survey";
-import { ImageType } from "../../../src/types/image";
+import { Question, QuestionType, PlanLimit } from "src/types/survey";
+import { ImageType } from "src/types/image";
 
 interface QuestionFormProps {
   type: QuestionType;

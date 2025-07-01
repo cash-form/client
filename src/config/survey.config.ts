@@ -1,4 +1,4 @@
-import { QuestionTypeInfo } from "../types/survey";
+import { QuestionTypeInfo } from "src/types/survey";
 
 export const questionTypes: QuestionTypeInfo[] = [
   {

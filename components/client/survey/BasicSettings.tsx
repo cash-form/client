@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { FormState } from "../../../src/types/survey";
-import { PlanConfig } from "../../../src/config/plan.config";
-import { ImageType } from "../../../src/types/image";
+import { FormState } from "src/types/survey";
+import { PlanConfig } from "src/config/plan.config";
+import { ImageType } from "src/types/image";
 import ImageUploader from "./ImageUploader";
 import Swal from "sweetalert2";
 
@@ -262,7 +262,6 @@ export default function BasicSettings({
               images={headerImages}
               onChange={setHeaderImages}
               maxImages={planConfig.maxImages}
-              id="header-image-upload"
               imageType={ImageType.SURVEY}
             />
             <div

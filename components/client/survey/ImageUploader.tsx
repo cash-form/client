@@ -3,8 +3,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage, faXmark } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
-import { useImageUploadMutation } from "../../../src/lib/queries/image";
-import { ImageType } from "../../../src/types/image";
+import { useImageUploadMutation } from "src/lib/queries/image";
+import { ImageType } from "src/types/image";
 
 interface ImageUploaderProps {
   images: string[];
@@ -12,6 +12,7 @@ interface ImageUploaderProps {
   onChange: (images: string[]) => void;
   imageType: ImageType;
   className?: string;
+  id?: string;
 }
 
 export default function ImageUploader({
@@ -20,6 +21,7 @@ export default function ImageUploader({
   onChange,
   imageType,
   className = "",
+  id,
 }: ImageUploaderProps) {
   const imageUploadMutation = useImageUploadMutation();
 
@@ -64,7 +66,7 @@ export default function ImageUploader({
     onChange(newImages);
   };
 
-  const id = `image-uploader-${imageType}`;
+  const uploaderId = `image-uploader-${imageType}`;
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -74,12 +76,12 @@ export default function ImageUploader({
           accept="image/*"
           onChange={handleImageUpload}
           className="hidden"
-          id={id}
+          id={uploaderId}
           multiple
           disabled={imageUploadMutation.isPending}
         />
         <label
-          htmlFor={id}
+          htmlFor={uploaderId}
           className={`inline-flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:border-primary transition-colors ${
             images.length >= maxImages || imageUploadMutation.isPending
               ? "opacity-50 cursor-not-allowed"

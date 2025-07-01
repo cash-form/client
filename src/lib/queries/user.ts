@@ -11,8 +11,8 @@ import {
   RefreshTokenResponseDto,
 } from "src/dtos/user/auth.dto";
 import { ApiError } from "src/types/auth";
-import { fetchWithAuth } from "../api/commonFetch.utility";
-import { getAccessToken, saveTokens } from "../api/common.utilitiy";
+import { fetchWithAuth } from "src/lib/api/commonFetch.utility";
+import { getAccessToken, saveTokens } from "src/lib/api/common.utility";
 import Swal from "sweetalert2";
 import { UserDto } from "src/dtos/user";
 

@@ -1,27 +1,29 @@
 "use client";
 
-import { useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
+  arrayMove,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Question, QuestionType } from "../../../src/types/survey";
-import { PlanConfig } from "../../../src/config/plan.config";
-import { Button } from "../../../src/components/ui/button";
+import { Question, QuestionType } from "src/types/survey";
+import { PlanConfig } from "src/config/plan.config";
+import { Button } from "src/components/ui/button";
 import QuestionForm from "./QuestionForm";
 import QuestionTypeSelector from "./QuestionTypeSelector";
-import { questionTypes } from "../../../src/config/survey.config";
+import { questionTypes } from "src/config/survey.config";
 import Swal from "sweetalert2";
 
 interface SelectTypeProps {

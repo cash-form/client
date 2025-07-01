@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import dayjs from "dayjs";
-import { SurveyItemDto } from "../../../src/dtos/survey/survey-list.dto";
+import { SurveyItemDto } from "src/dtos/survey/survey-list.dto";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowRight,
@@ -10,6 +10,7 @@ import {
   faUser,
   faUserGroup,
 } from "@fortawesome/free-solid-svg-icons";
+import { SurveyStatusType } from "src/config/constants";
 
 interface SurveyCardProps {
   survey: SurveyItemDto;

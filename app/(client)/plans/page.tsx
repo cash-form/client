@@ -3,7 +3,7 @@
 import CreditPolicyGuide from "components/client/plan/CreditPolicyGuide";
 import PlanFooter from "components/client/plan/PlanFooter";
 import PlanHeader from "components/client/plan/PlanHeader";
-import PricePlan from "components/client/plan/pricePlan";
+import PricePlan from "components/client/plan/components/PricePlan";
 
 export default function CreditPolicy() {
   return (

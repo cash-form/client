@@ -1,4 +1,9 @@
-import { Product, QuestionType, questionTypeToNumber } from "../types/survey";
+import {
+  Product,
+  QuestionType,
+  questionTypeToNumber,
+  convertQuestionType,
+} from "src/types/survey";
 
 export interface HeaderFooterDto {
   text: string;
@@ -49,7 +54,3 @@ export interface SurveyResponseDto {
   footer: HeaderFooterDto;
   questions: QuestionDto[];
 }
-
-export const convertQuestionType = (type: QuestionType): number => {
-  return questionTypeToNumber[type];
-};

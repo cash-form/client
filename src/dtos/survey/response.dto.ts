@@ -1,4 +1,4 @@
-import { Product } from "../../types/survey";
+import { Product } from "src/types/survey";
 import { HeaderFooterDto, QuestionDto } from "./request.dto";
 
 interface AuthorDto {

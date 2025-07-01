@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Product } from "../../../src/types/survey";
-import { PLAN_CONFIGS, formatPrice } from "../../../src/config/plan.config";
+import { Product } from "src/types/survey";
+import { PLAN_CONFIGS } from "src/config/plan.config";
+import { formatPrice } from "components/client/plan/utils/formatters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "src/components/ui/select";
 
 interface PlanSelectorProps {
   selectedPlan: Product;

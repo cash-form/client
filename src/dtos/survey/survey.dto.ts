@@ -1,10 +1,3 @@
-import { QuestionType, questionTypeToNumber } from "../../types/survey";
-
-// Utility function to convert QuestionType to number
-export const convertQuestionType = (type: QuestionType): number => {
-  return questionTypeToNumber[type];
-};
-
 export interface HeaderFooterDto {
   text: string;
   images: string[];

@@ -1,11 +1,4 @@
-import {
-  faStar,
-  faCrown,
-  faGem,
-  faTrophy,
-  faFileLines,
-} from "@fortawesome/free-solid-svg-icons";
-import { Product } from "../types/survey";
+import { Product } from "src/types/survey";
 
 export interface PlanConfig {
   name: string;
@@ -107,12 +100,4 @@ export const PLAN_CONFIGS: Record<Product, PlanConfig> = {
       "참여자보상 800크레딧",
     ],
   },
-};
-
-export const formatPrice = (price: number): string => {
-  return `${price.toLocaleString()}원`;
-};
-
-export const formatCredit = (credit: number): string => {
-  return `${credit.toLocaleString()}크레딧`;
 };

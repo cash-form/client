@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useState, useMemo, useEffect, useRef } from "react";
-import useDebounce from "../../../hooks/useDebounce";
+import useDebounce from "hooks/useDebounce";
 import { Input } from "src/components/ui/input";
 import { Button } from "src/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -59,7 +59,7 @@ export default function SurveySearchFilter({
       prevSearchKeywordRef.current = debouncedSearchKeyword;
       onSearch(debouncedSearchKeyword);
     }
-  }, [debouncedSearchKeyword]);
+  }, [debouncedSearchKeyword, onSearch]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

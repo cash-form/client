@@ -1,4 +1,4 @@
-import { getAccessToken } from "./common.utilitiy";
+import { getAccessToken } from "src/lib/api/common.utility";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

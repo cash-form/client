@@ -5,18 +5,15 @@ import BasicSettings from "./BasicSettings";
 import SelectType from "./SelectType";
 import SurveyFooter from "./SurveyFooter";
 import PlanSelector from "./PlanSelector";
-import { useSurveyMutation } from "../../../src/lib/queries/survey";
-import { SurveyFormDto } from "../../../src/dtos/survey/request.dto";
-import {
-  FormState,
-  convertQuestionType,
-  Product,
-} from "../../../src/types/survey";
-import { PLAN_CONFIGS, formatPrice } from "../../../src/config/plan.config";
+import { useSurveyMutation } from "src/lib/queries/survey";
+import { SurveyFormDto } from "src/dtos/survey/request.dto";
+import { FormState, convertQuestionType, Product } from "src/types/survey";
+import { PLAN_CONFIGS } from "src/config/plan.config";
+import { formatPrice } from "components/client/plan/utils/formatters";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faCheck } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "../../../src/components/ui/button";
+import { Button } from "src/components/ui/button";
 
 export default function SurveyFormWrapper() {
   const [currentStep, setCurrentStep] = useState<"plan" | "form">("plan");

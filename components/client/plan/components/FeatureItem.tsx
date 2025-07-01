@@ -1,12 +1,6 @@
-export default function FeatureItem({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-}) {
+import { FeatureItemProps } from "components/client/plan/types";
+
+export default function FeatureItem({ icon, label, value }: FeatureItemProps) {
   return (
     <div className="flex items-start gap-3">
       <span className="text-lg flex-shrink-0 mt-0.5">{icon}</span>

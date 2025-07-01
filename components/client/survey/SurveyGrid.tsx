@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SurveyItemDto } from "../../../src/dtos/survey/survey-list.dto";
+import { SurveyItemDto } from "src/dtos/survey/survey-list.dto";
+import { SurveyResponseDto } from "src/dtos/survey/response.dto";
 import SurveyCard from "./SurveyCard";
-import { useVirtualizedInfiniteScroll } from "../../../hooks/useVirtualizedInfiniteScroll";
+import { useVirtualizedInfiniteScroll } from "hooks/useVirtualizedInfiniteScroll";
 
 interface SurveyGridProps {
   surveys: SurveyItemDto[];

@@ -1,6 +1,8 @@
 "use client";
 
-import { QuestionType, QuestionTypeInfo } from "../../../src/types/survey";
+import { useState } from "react";
+import { QuestionType, QuestionTypeInfo } from "src/types/survey";
+import { questionTypes } from "src/config/survey.config";
 
 interface QuestionTypeSelectorProps {
   questionTypes: QuestionTypeInfo[];
