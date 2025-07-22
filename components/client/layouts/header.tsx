@@ -9,6 +9,7 @@ import LoginForm from "components/client/form/loginForm";
 import { useSearchParams } from "next/navigation";
 import { useLoginModalStore } from "src/stores/useLoginModalStore";
 import { useMe } from "src/lib/queries/user";
+import { logout } from "src/lib/api/auth.utility";
 
 export default function Header() {
   return (
@@ -59,21 +60,28 @@ function HeaderContent() {
 
         <div className="w-fit h-full flex items-center justify-end gap-4 py-3">
           {user ? (
-            <span
-              className="w-20 h-full flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0"
-              tabIndex={0}
-              onClick={() => {
-                document.cookie = "accessToken=; max-age=0; path=/";
-                document.cookie = "refreshToken=; max-age=0; path=/";
-                location.reload();
-              }}
-            >
-              <p className="text-lg text-primary font-bold m-0">로그아웃</p>
-              {/* TODO: 로그아웃 처리 */}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-foreground/80 hidden sm:inline">
+                {user.nickname}님
+              </span>
+              <span
+                className="w-20 h-full flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0"
+                tabIndex={0}
+                onClick={logout}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    logout();
+                  }
+                }}
+                role="button"
+                aria-label="로그아웃"
+              >
+                <p className="text-lg text-primary font-bold m-0">로그아웃</p>
+              </span>
+            </div>
           ) : (
             <span
-              className="w-20 h-full flex items-center justify-center cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0"
+              className="w-20 h-full flex items-center justify-center  cursor-pointer hover:opacity-70 transition-opacity duration-100 ease-in-out delay-0"
               onClick={openModal}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -81,8 +89,10 @@ function HeaderContent() {
                 }
               }}
               tabIndex={0}
+              role="button"
+              aria-label="로그인"
             >
-              <p className="text-lg text-primary font-bold">로그인</p>
+              <p className="text-lg text-primary font-bold m-0">로그인</p>
             </span>
           )}
 
@@ -90,6 +100,8 @@ function HeaderContent() {
           <button
             className="md:hidden flex flex-col justify-center items-center w-8 h-8 cursor-pointer"
             onClick={handleToggleMobileMenu}
+            aria-label="모바일 메뉴 열기"
+            type="button"
           >
             <span
               className={`block h-0.5 w-6 bg-foreground transition-transform duration-300 ${

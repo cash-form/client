@@ -60,7 +60,7 @@ async function getAccessToken(refreshToken: string, response: NextResponse) {
 
     if (!res.ok) return false;
 
-    const data = await res.json();
+    const data: { accessToken: string; refreshToken?: string } = await res.json();
 
     // middleware에서는 이렇게 쿠키 설정 - 새로운 응답 형식에 맞게 수정
     response.cookies.set("accessToken", data.accessToken, {

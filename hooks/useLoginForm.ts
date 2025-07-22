@@ -25,7 +25,7 @@ export default function useLoginForm() {
     }));
   };
 
-  const validate = () => {
+  const validate = (): boolean => {
     if (!validateEmail(formData.email)) {
       setError("올바른 이메일 형식을 입력하세요.");
       return false;
