@@ -11,8 +11,8 @@ import {
   RefreshTokenResponseDto,
 } from "src/dtos/user/auth.dto";
 import { ApiError } from "src/types/auth";
-import { fetchWithAuth } from "../api/commonFetch.utility";
-import { getAccessToken, saveTokens } from "../api/common.utilitiy";
+import { fetchWithAuth } from "src/lib/api/commonFetch.utility";
+import { getAccessToken, saveTokens } from "src/lib/api/common.utility";
 import Swal from "sweetalert2";
 import { UserDto } from "src/dtos/user";
 
@@ -75,7 +75,6 @@ export const useLogin = (onSuccess: () => void) => {
       onSuccess();
     },
     onError: (error: ApiError) => {
-      console.log(error);
       Swal.fire({
         title: "로그인 실패",
         text: "로그인 실패: " + (error?.message || "알 수 없는 오류"),
@@ -105,7 +104,7 @@ export const checkNicknameDuplicate = async (
 ): Promise<CheckDuplicateDto> => {
   try {
     const data = await fetchWithAuth(
-      `/v1/users/duplicate/name?nickname=${nickname}`,
+      `/v1/users/duplicate/name?nickname=${encodeURIComponent(nickname)}`,
       {
         method: "GET",
       },
@@ -132,7 +131,7 @@ export const checkEmailDuplicate = async (
 ): Promise<CheckDuplicateDto> => {
   try {
     const data = await fetchWithAuth(
-      `/v1/users/duplicate/account?email=${email}`,
+      `/v1/users/duplicate/account?email=${encodeURIComponent(email)}`,
       {
         method: "GET",
       },

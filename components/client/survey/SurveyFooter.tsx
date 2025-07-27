@@ -1,21 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ContentSection } from "../../../src/types/survey";
-import { PlanConfig } from "../../../src/config/plan.config";
-import { ImageType } from "../../../src/types/image";
+import { ContentSection, FormState } from "src/types/survey";
+import { PlanConfig } from "src/config/plan.config";
+import { ImageType } from "src/types/image";
 import ImageUploader from "./ImageUploader";
 
 interface SurveyFooterProps {
   formData: { footer: ContentSection };
   onChange: (data: { footer: ContentSection }) => void;
   planConfig: PlanConfig;
+  totalUsedImages: number;
 }
 
 export default function SurveyFooter({
   formData,
   onChange,
   planConfig,
+  totalUsedImages,
 }: SurveyFooterProps) {
   const [footerText, setFooterText] = useState(formData.footer.text);
   const [footerImages, setFooterImages] = useState<string[]>(
@@ -48,7 +50,7 @@ export default function SurveyFooter({
           <textarea
             value={footerText}
             onChange={(e) => setFooterText(e.target.value)}
-            placeholder="설문조사 하단에 표시될 안내사항이나 감사인사를 입력하세요"
+            placeholder="설문조사 하단에 표시될 안내사항을 입력하세요"
             maxLength={maxTextLength}
             rows={4}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -68,12 +70,13 @@ export default function SurveyFooter({
               onChange={(images) =>
                 onChange({ footer: { ...formData.footer, images } })
               }
-              maxImages={planConfig.maxImages}
               id="footer-image-upload"
               imageType={ImageType.SURVEY}
+              totalUsedImages={totalUsedImages}
+              maxTotalImages={planConfig.maxImages}
             />
             <div className="text-xs text-gray-500 mt-1">
-              최대 {planConfig.maxImages}개까지 업로드 가능
+              전체 설문조사에서 최대 {planConfig.maxImages}개까지 업로드 가능
             </div>
           </div>
         ) : (

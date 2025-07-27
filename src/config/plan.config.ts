@@ -1,10 +1,4 @@
-import {
-  faStar,
-  faCrown,
-  faGem,
-  faTrophy,
-  faFileLines,
-} from "@fortawesome/free-solid-svg-icons";
+import { Product } from "src/types/survey";
 
 export interface PlanConfig {
   name: string;
@@ -18,13 +12,6 @@ export interface PlanConfig {
   shortfallCompensation: number; // 미달 보상 크레딧
   shortfallThreshold: number; // 미달 보상 기준 답변 수
   features: string[]; // 요금제 특징
-  icon:
-    | typeof faStar
-    | typeof faCrown
-    | typeof faGem
-    | typeof faTrophy
-    | typeof faFileLines; // 아이콘
-  color: string; // 배경색 클래스명
 }
 
 export const PLAN_CONFIGS = {
@@ -48,8 +35,6 @@ export const PLAN_CONFIGS = {
       "이미지 삽입 불가",
       "참여자보상 200크레딧",
     ],
-    icon: faStar,
-    color: "",
   },
   2: {
     name: "DELUXE",
@@ -72,8 +57,6 @@ export const PLAN_CONFIGS = {
       "이미지 최대 2개",
       "참여자보상 250크레딧",
     ],
-    icon: faCrown,
-    color: "",
   },
   3: {
     name: "PREMIUM",
@@ -95,8 +78,6 @@ export const PLAN_CONFIGS = {
       "이미지 최대 3개",
       "참여자보상 400크레딧",
     ],
-    icon: faGem,
-    color: "",
   },
   4: {
     name: "PROFESSIONAL",
@@ -118,16 +99,5 @@ export const PLAN_CONFIGS = {
       "이미지 최대 5개",
       "참여자보상 800크레딧",
     ],
-    icon: faTrophy,
-    color: "",
   },
-} as const;
-export type PLAN_CONFIGS = (typeof PLAN_CONFIGS)[keyof typeof PLAN_CONFIGS];
-
-export const formatPrice = (price: number): string => {
-  return `${price.toLocaleString()}원`;
-};
-
-export const formatCredit = (credit: number): string => {
-  return `${credit.toLocaleString()}크레딧`;
 };

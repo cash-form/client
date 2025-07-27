@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { SurveyFormDto } from "../../dtos/survey/request.dto";
-import { SurveyResponseDto } from "../../dtos/survey/response.dto";
-import { fetchWithAuth } from "../api/commonFetch.utility";
+import { SurveyFormDto } from "src/dtos/survey/request.dto";
+import { SurveyResponseDto } from "src/dtos/survey/response.dto";
+import { fetchWithAuth } from "src/lib/api/commonFetch.utility";
 
 export const useSurveyMutation = () => {
   const router = useRouter();

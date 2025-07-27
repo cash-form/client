@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { FormState } from "../../../src/types/survey";
-import { PlanConfig } from "../../../src/config/plan.config";
-import { ImageType } from "../../../src/types/image";
+import { FormState } from "src/types/survey";
+import { PlanConfig } from "src/config/plan.config";
+import { ImageType } from "src/types/image";
 import ImageUploader from "./ImageUploader";
 import Swal from "sweetalert2";
 
@@ -11,12 +11,14 @@ interface BasicSettingsProps {
   formData: FormState;
   onChange: (data: Partial<FormState>) => void;
   planConfig: PlanConfig;
+  totalUsedImages: number;
 }
 
 export default function BasicSettings({
   formData,
   onChange,
   planConfig,
+  totalUsedImages,
 }: BasicSettingsProps) {
   const [title, setTitle] = useState(formData.title);
   const [startDate, setStartDate] = useState(formData.startDate);
@@ -261,9 +263,10 @@ export default function BasicSettings({
             <ImageUploader
               images={headerImages}
               onChange={setHeaderImages}
-              maxImages={planConfig.maxImages}
-              id="header-image-upload"
               imageType={ImageType.SURVEY}
+              id="header-image-upload"
+              totalUsedImages={totalUsedImages}
+              maxTotalImages={planConfig.maxImages}
             />
             <div
               className="text-xs mt-1"
@@ -271,7 +274,7 @@ export default function BasicSettings({
                 color: "color-mix(in srgb, var(--color-gray) 50%, transparent)",
               }}
             >
-              최대 {planConfig.maxImages}개까지 업로드 가능
+              전체 설문조사에서 최대 {planConfig.maxImages}개까지 업로드 가능
             </div>
           </div>
         ) : (

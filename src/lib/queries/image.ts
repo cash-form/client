@@ -2,8 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import {
   ImageUploadRequestDto,
   ImageUploadResponseDto,
-} from "../../dtos/image/image.dto";
-import { uploadImageWithAuth } from "../api/commonFetch.utility";
+} from "src/dtos/image/image.dto";
+import { uploadImageWithAuth } from "src/lib/api/commonFetch.utility";
 
 export const useImageUploadMutation = () => {
   return useMutation<ImageUploadResponseDto, Error, ImageUploadRequestDto>({

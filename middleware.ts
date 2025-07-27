@@ -14,8 +14,6 @@ export async function middleware(request: NextRequest) {
   // 쿠키에서 토큰 보유 여부 확인
   const hasAccess = request.cookies.get("accessToken")?.value !== undefined;
   const hasRefresh = request.cookies.get("refreshToken")?.value !== undefined;
-  console.log("hasAccess", hasAccess);
-  console.log("hasRefresh", hasRefresh);
 
   if (!hasRefresh) {
     // 토큰 없으면 /signup으로 리디렉션
@@ -28,7 +26,6 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
     const result = await getAccessToken(refreshToken as string, response);
 
-    console.log("result : ", result);
     if (!result) {
       const redirectUrl = new URL("/signup", request.url);
       return NextResponse.redirect(redirectUrl);
@@ -60,7 +57,8 @@ async function getAccessToken(refreshToken: string, response: NextResponse) {
 
     if (!res.ok) return false;
 
-    const data = await res.json();
+    const data: { accessToken: string; refreshToken?: string } =
+      await res.json();
 
     // middleware에서는 이렇게 쿠키 설정 - 새로운 응답 형식에 맞게 수정
     response.cookies.set("accessToken", data.accessToken, {

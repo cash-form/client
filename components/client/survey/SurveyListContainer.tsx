@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useInfiniteSurveyList } from "../../../src/lib/queries/survey-list";
+import { useInfiniteSurveyList } from "src/lib/queries/survey-list";
 import SurveyGrid from "./SurveyGrid";
 import SurveySearchFilter from "./SurveySearchFilter";
 import { useRouter } from "next/navigation";

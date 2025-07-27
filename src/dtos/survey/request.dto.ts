@@ -1,4 +1,4 @@
-import { Product } from "../../types/survey";
+import { Product } from "src/types/survey";
 
 export interface HeaderFooterDto {
   text: string;

@@ -1,14 +1,12 @@
-import SurveyListContainer from "../../../components/client/survey/SurveyListContainer";
+import SurveyListContainer from "components/client/survey/SurveyListContainer";
 
 export default function SurveysPage() {
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground/90 mb-2">
-          설문조사 목록
-        </h1>
-        <p className="text-foreground/50">
-          다양한 주제의 설문조사에 참여하고 의견을 공유해보세요.
+    <div className="py-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">설문조사 목록</h1>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          다양한 설문조사에 참여하고 리워드를 받으세요
         </p>
       </div>
 

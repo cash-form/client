@@ -6,12 +6,12 @@ import { useSortable } from "@dnd-kit/sortable";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGripVertical, faTrash } from "@fortawesome/free-solid-svg-icons";
 import QuestionNumber from "./QuestionNumber";
-import { QUESTION_TYPE_LABELS } from "../../../src/config/survey.config";
+import { QUESTION_TYPE_LABELS } from "src/config/survey.config";
 import ImageUploader from "./ImageUploader";
 import MultipleChoiceOptions from "./MultipleChoiceOptions";
 import Swal from "sweetalert2";
-import { Question, QuestionType, PlanLimit } from "../../../src/types/survey";
-import { ImageType } from "../../../src/types/image";
+import { Question, QuestionType, PlanLimit } from "src/types/survey";
+import { ImageType } from "src/types/image";
 
 interface QuestionFormProps {
   type: QuestionType;
@@ -21,6 +21,8 @@ interface QuestionFormProps {
   initialData: Question;
   "data-id"?: string;
   planLimits: PlanLimit;
+  totalUsedImages: number;
+  maxTotalImages: number;
 }
 
 export default function QuestionForm({
@@ -31,6 +33,8 @@ export default function QuestionForm({
   initialData,
   "data-id": dataId,
   planLimits,
+  totalUsedImages,
+  maxTotalImages,
 }: QuestionFormProps) {
   // 드래그앤드롭
   const {
@@ -62,6 +66,7 @@ export default function QuestionForm({
 
   const handleChange = (updates: Partial<Question>) => {
     const newData = { ...questionData, ...updates } as Question;
+
     setQuestionData(newData);
     onChange(newData);
   };
@@ -206,7 +211,8 @@ export default function QuestionForm({
             onChange={(images) => handleChange({ images })}
             id={`question-image-${initialData.id}`}
             imageType={ImageType.SURVEY}
-            maxImages={planLimits.maxImagesPerSection}
+            totalUsedImages={totalUsedImages}
+            maxTotalImages={maxTotalImages}
           />
         </div>
       )}
