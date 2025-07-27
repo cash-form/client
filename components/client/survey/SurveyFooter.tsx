@@ -10,12 +10,14 @@ interface SurveyFooterProps {
   formData: { footer: ContentSection };
   onChange: (data: { footer: ContentSection }) => void;
   planConfig: PlanConfig;
+  totalUsedImages: number;
 }
 
 export default function SurveyFooter({
   formData,
   onChange,
   planConfig,
+  totalUsedImages,
 }: SurveyFooterProps) {
   const [footerText, setFooterText] = useState(formData.footer.text);
   const [footerImages, setFooterImages] = useState<string[]>(
@@ -68,12 +70,13 @@ export default function SurveyFooter({
               onChange={(images) =>
                 onChange({ footer: { ...formData.footer, images } })
               }
-              maxImages={planConfig.maxImages}
               id="footer-image-upload"
               imageType={ImageType.SURVEY}
+              totalUsedImages={totalUsedImages}
+              maxTotalImages={planConfig.maxImages}
             />
             <div className="text-xs text-gray-500 mt-1">
-              최대 {planConfig.maxImages}개까지 업로드 가능
+              전체 설문조사에서 최대 {planConfig.maxImages}개까지 업로드 가능
             </div>
           </div>
         ) : (

@@ -8,20 +8,23 @@ import { ImageType } from "src/types/image";
 
 interface ImageUploaderProps {
   images: string[];
-  maxImages: number;
   onChange: (images: string[]) => void;
   imageType: ImageType;
   className?: string;
   id?: string;
+  // 전체 설문조사 이미지 제한
+  totalUsedImages?: number; // 전체 설문조사에서 현재 사용된 이미지 수
+  maxTotalImages?: number; // 전체 설문조사에서 허용되는 최대 이미지 수
 }
 
 export default function ImageUploader({
   images,
-  maxImages,
   onChange,
   imageType,
   className = "",
   id,
+  totalUsedImages = 0,
+  maxTotalImages = Infinity,
 }: ImageUploaderProps) {
   const imageUploadMutation = useImageUploadMutation();
 
@@ -29,9 +32,12 @@ export default function ImageUploader({
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
 
-      if (images.length + newFiles.length > maxImages) {
+      // 전체 설문조사 이미지 제한 체크
+      if (totalUsedImages + newFiles.length > maxTotalImages) {
+        const remaining = maxTotalImages - totalUsedImages;
         Swal.fire({
-          title: `이미지는 최대 ${maxImages}장까지만 첨부 가능합니다.`,
+          title: `전체 설문조사에서 이미지 제한을 초과했습니다.`,
+          text: `현재 ${totalUsedImages}장 사용 중, 최대 ${maxTotalImages}장까지 가능합니다. ${remaining}장만 더 추가할 수 있습니다.`,
           icon: "error",
         });
         e.target.value = "";
@@ -39,6 +45,8 @@ export default function ImageUploader({
       }
 
       // 각 파일을 순차적으로 업로드
+      const uploadedUrls: string[] = [];
+
       for (const file of newFiles) {
         try {
           const response = await imageUploadMutation.mutateAsync({
@@ -46,8 +54,8 @@ export default function ImageUploader({
             type: imageType,
           });
 
-          // 업로드된 이미지 URL을 추가
-          onChange([...images, response.url]);
+          // 업로드된 이미지 URL을 임시 배열에 추가
+          uploadedUrls.push(response.url);
         } catch (error) {
           console.error("이미지 업로드 실패:", error);
           Swal.fire({
@@ -55,7 +63,15 @@ export default function ImageUploader({
             text: "이미지를 업로드하는 중 오류가 발생했습니다.",
             icon: "error",
           });
+          break; // 실패 시 중단
         }
+      }
+
+      // 모든 업로드가 완료된 후 한 번에 상태 업데이트
+      if (uploadedUrls.length > 0) {
+        const newImages = [...images, ...uploadedUrls];
+
+        onChange(newImages);
       }
     }
     e.target.value = "";
@@ -66,7 +82,17 @@ export default function ImageUploader({
     onChange(newImages);
   };
 
-  const uploaderId = `image-uploader-${imageType}`;
+  const uploaderId = id || `image-uploader-${imageType}`;
+
+  // 업로드 가능 여부 계산
+  const isUploadDisabled =
+    imageUploadMutation.isPending || totalUsedImages >= maxTotalImages;
+
+  const getUploadText = () => {
+    if (imageUploadMutation.isPending) return "업로드 중...";
+    if (totalUsedImages >= maxTotalImages) return "이미지 제한 달성";
+    return "이미지 첨부하기";
+  };
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -78,27 +104,19 @@ export default function ImageUploader({
           className="hidden"
           id={uploaderId}
           multiple
-          disabled={imageUploadMutation.isPending}
+          disabled={isUploadDisabled}
         />
         <label
           htmlFor={uploaderId}
           className={`inline-flex items-center gap-2 px-4 py-2 border rounded-lg cursor-pointer hover:border-primary transition-colors ${
-            images.length >= maxImages || imageUploadMutation.isPending
-              ? "opacity-50 cursor-not-allowed"
-              : ""
+            isUploadDisabled ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
           <FontAwesomeIcon icon={faImage} className="text-lg" />
-          <span className="text-sm font-medium">
-            {imageUploadMutation.isPending
-              ? "업로드 중..."
-              : images.length >= maxImages
-              ? "이미지 제한 달성"
-              : "이미지 첨부하기"}
-          </span>
+          <span className="text-sm font-medium">{getUploadText()}</span>
         </label>
         <p className="text-xs text-gray-500 mt-2">
-          최대 {maxImages}장까지 업로드 가능
+          전체: {totalUsedImages}/{maxTotalImages}장
         </p>
       </div>
 

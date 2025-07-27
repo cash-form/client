@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -31,6 +31,8 @@ interface SelectTypeProps {
   onQuestionAdd: (questions: Question[]) => void;
   planConfig: PlanConfig;
   currentQuestionCount: number;
+  totalUsedImages: number;
+  maxTotalImages: number;
 }
 
 export default function SelectType({
@@ -38,6 +40,8 @@ export default function SelectType({
   onQuestionAdd,
   planConfig,
   currentQuestionCount,
+  totalUsedImages,
+  maxTotalImages,
 }: SelectTypeProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -45,6 +49,32 @@ export default function SelectType({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const questionsContainerRef = useRef<HTMLDivElement>(null);
+  const [previousQuestionCount, setPreviousQuestionCount] = useState(
+    questions.length
+  );
+
+  // 질문이 추가될 때마다 마지막 질문으로 스크롤
+  useEffect(() => {
+    if (
+      questions.length > previousQuestionCount &&
+      questionsContainerRef.current
+    ) {
+      // 새 질문이 추가된 경우
+      setTimeout(() => {
+        const lastQuestionElement =
+          questionsContainerRef.current?.lastElementChild;
+        if (lastQuestionElement) {
+          lastQuestionElement.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+          });
+        }
+      }, 100); // DOM 업데이트 후 스크롤
+    }
+    setPreviousQuestionCount(questions.length);
+  }, [questions.length, previousQuestionCount]);
 
   // 질문 추가
   const handleQuestionAdd = useCallback(
@@ -189,7 +219,7 @@ export default function SelectType({
 
   // 요금제별 제한사항을 PlanLimit 형태로 변환
   const planLimits = {
-    maxImagesPerSection: planConfig.maxImages,
+    maxImagesPerSection: 999, // 섹션별 제한 없음
     maxOptionsPerQuestion: 6,
   };
 
@@ -214,9 +244,9 @@ export default function SelectType({
         </div>
       </div>
 
-      <div className="flex gap-8">
+      <div className="flex gap-4 md:gap-8">
         {/* 질문 유형 선택 */}
-        <div className="w-64 shrink-0">
+        <div className="w-fit md:w-64 shrink-0 sticky top-4 self-start">
           <QuestionTypeSelector
             questionTypes={questionTypes}
             onQuestionAdd={handleQuestionAdd}
@@ -247,7 +277,7 @@ export default function SelectType({
                 items={questions.map((q) => q.id)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="space-y-4">
+                <div ref={questionsContainerRef} className="space-y-4">
                   {questions.map((question, index) => (
                     <QuestionForm
                       key={question.id}
@@ -260,6 +290,8 @@ export default function SelectType({
                       initialData={question}
                       data-id={question.id}
                       planLimits={planLimits}
+                      totalUsedImages={totalUsedImages}
+                      maxTotalImages={maxTotalImages}
                     />
                   ))}
                 </div>

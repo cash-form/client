@@ -6,7 +6,8 @@ function validateEmail(email: string) {
 }
 
 function validatePassword(password: string) {
-  return password.length >= 8;
+  // 8자 이상, 영문, 숫자, 특수문자 포함
+  return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password);
 }
 
 export default function useLoginForm() {
@@ -31,7 +32,7 @@ export default function useLoginForm() {
       return false;
     }
     if (!validatePassword(formData.password)) {
-      setError("비밀번호는 8자 이상이어야 합니다.");
+      setError("영문, 숫자, 특수문자 포함 8자 이상 입력하세요.");
       return false;
     }
     setError(null);

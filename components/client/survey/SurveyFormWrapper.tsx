@@ -40,6 +40,22 @@ export default function SurveyFormWrapper() {
     return PLAN_CONFIGS[formData.product];
   }, [formData.product]);
 
+  // 전체 이미지 수 계산
+  const totalImageCount = useMemo(() => {
+    const headerImages = formData.header.images.length;
+    const footerImages = formData.footer.images.length;
+    const questionImages = formData.questions.reduce(
+      (total, question) => total + question.images.length,
+      0
+    );
+    return headerImages + footerImages + questionImages;
+  }, [formData.header.images, formData.footer.images, formData.questions]);
+
+  // 남은 이미지 업로드 가능 수
+  const remainingImageCount = useMemo(() => {
+    return Math.max(0, currentPlanConfig.maxImages - totalImageCount);
+  }, [currentPlanConfig.maxImages, totalImageCount]);
+
   const handlePlanSelect = useCallback(
     (plan: Product) => {
       if (currentStep === "form" && formData.questions.length > 0) {
@@ -177,7 +193,11 @@ export default function SurveyFormWrapper() {
         },
       };
 
-      console.log("requestData:", requestData);
+      console.log("🚀 Survey submission - Full request data:", requestData);
+      console.log(
+        "📝 Questions with images:",
+        processedQuestions.filter((q) => q.images && q.images.length > 0)
+      );
       registerSurvey(requestData);
     } catch (error) {
       console.error("설문 등록 중 오류 발생:", error);
@@ -271,6 +291,7 @@ export default function SurveyFormWrapper() {
             formData={formData}
             onChange={handleBasicSettingsChange}
             planConfig={currentPlanConfig}
+            totalUsedImages={totalImageCount}
           />
 
           <SelectType
@@ -278,12 +299,15 @@ export default function SurveyFormWrapper() {
             onQuestionAdd={handleQuestionAdd}
             planConfig={currentPlanConfig}
             currentQuestionCount={formData.questions.length}
+            totalUsedImages={totalImageCount}
+            maxTotalImages={currentPlanConfig.maxImages}
           />
 
           <SurveyFooter
             formData={{ footer: formData.footer }}
             onChange={handleFooterChange}
             planConfig={currentPlanConfig}
+            totalUsedImages={totalImageCount}
           />
         </div>
 
