@@ -127,7 +127,7 @@ export default function ImageUploader({
               <img
                 src={url}
                 alt={`이미지 ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg border"
+                className="w-full max-h-32 object-contain rounded-lg border"
               />
               <button
                 onClick={() => removeImage(index)}

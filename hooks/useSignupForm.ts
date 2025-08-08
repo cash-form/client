@@ -1,17 +1,6 @@
 import { useState } from "react";
 import { RegisterFormData } from "src/types/auth";
-
-function validateEmail(email: string) {
-  // 간단한 이메일 정규식
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function validatePassword(password: string) {
-  // 8자 이상, 영문, 숫자, 특수문자 포함
-  return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(
-    password
-  );
-}
+import { ValidationUtils, ValidationMessages } from "src/utils/validation";
 
 export default function useSignupForm() {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -44,15 +33,6 @@ export default function useSignupForm() {
     agreements: "",
   });
 
-  // 닉네임 유효성(2자 이상)
-  function validateNickname(nickname: string) {
-    return /^.{2,}$/.test(nickname);
-  }
-
-  // 비밀번호 확인 유효성
-  function validatePasswordConfirm(password: string, passwordConfirm: string) {
-    return password === passwordConfirm;
-  }
 
   // 전체 폼 유효성
   const isFormValid =
@@ -60,10 +40,10 @@ export default function useSignupForm() {
     !!formData.email &&
     !!formData.password &&
     !!formData.passwordConfirm &&
-    validateNickname(formData.nickname) &&
-    validateEmail(formData.email) &&
-    validatePassword(formData.password) &&
-    validatePasswordConfirm(formData.password, formData.passwordConfirm) &&
+    ValidationUtils.nickname(formData.nickname) &&
+    ValidationUtils.email(formData.email) &&
+    ValidationUtils.password(formData.password) &&
+    ValidationUtils.passwordConfirm(formData.password, formData.passwordConfirm) &&
     agreements.terms &&
     agreements.privacy;
 
@@ -83,20 +63,20 @@ export default function useSignupForm() {
       agreements: "",
     };
     let valid = true;
-    if (!validateNickname(nickname)) {
-      newError.nickname = "닉네임은 2자 이상이어야 합니다.";
+    if (!ValidationUtils.nickname(nickname)) {
+      newError.nickname = ValidationMessages.nickname;
       valid = false;
     }
-    if (!validateEmail(email)) {
-      newError.email = "올바른 이메일 형식을 입력하세요.";
+    if (!ValidationUtils.email(email)) {
+      newError.email = ValidationMessages.email;
       valid = false;
     }
-    if (!validatePassword(password)) {
-      newError.password = "영문, 숫자, 특수문자 포함 8자 이상 입력하세요.";
+    if (!ValidationUtils.password(password)) {
+      newError.password = ValidationMessages.password;
       valid = false;
     }
-    if (!validatePasswordConfirm(password, passwordConfirm)) {
-      newError.passwordConfirm = "비밀번호가 일치하지 않습니다.";
+    if (!ValidationUtils.passwordConfirm(password, passwordConfirm)) {
+      newError.passwordConfirm = ValidationMessages.passwordConfirm;
       valid = false;
     }
     if (!agreementsObj.terms || !agreementsObj.privacy) {
@@ -121,21 +101,21 @@ export default function useSignupForm() {
     const getErrorMessage = (fieldName: string, fieldValue: string) => {
       switch (fieldName) {
         case "nickname":
-          return validateNickname(fieldValue)
+          return ValidationUtils.nickname(fieldValue)
             ? ""
-            : "닉네임은 2자 이상이어야 합니다.";
+            : ValidationMessages.nickname;
         case "email":
-          return validateEmail(fieldValue)
+          return ValidationUtils.email(fieldValue)
             ? ""
-            : "올바른 이메일 형식을 입력하세요.";
+            : ValidationMessages.email;
         case "password":
-          return validatePassword(fieldValue)
+          return ValidationUtils.password(fieldValue)
             ? ""
-            : "영문, 숫자, 특수문자 포함 8자 이상 입력하세요.";
+            : ValidationMessages.password;
         case "passwordConfirm":
-          return validatePasswordConfirm(formData.password, fieldValue)
+          return ValidationUtils.passwordConfirm(formData.password, fieldValue)
             ? ""
-            : "비밀번호가 일치하지 않습니다.";
+            : ValidationMessages.passwordConfirm;
         default:
           return "";
       }
@@ -187,7 +167,5 @@ export default function useSignupForm() {
     setError,
     validate,
     isFormValid,
-    validateNickname,
-    validateEmail,
   };
 }

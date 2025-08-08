@@ -12,6 +12,7 @@ import { useLoginModalStore } from "src/stores/useLoginModalStore";
 import { useRouter } from "next/navigation";
 import { Button } from "src/components/ui/button";
 import { RegisterRequestDto } from "src/dtos/user/auth.dto";
+import { ValidationUtils } from "src/utils/validation";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -27,8 +28,6 @@ export default function SignupForm() {
     setError,
     validate,
     isFormValid,
-    validateNickname,
-    validateEmail,
   } = useSignupForm();
   const { openModal } = useLoginModalStore();
   const [isNicknameValid, setIsNicknameValid] = useState(false);
@@ -42,14 +41,14 @@ export default function SignupForm() {
   const debouncedNickname = useDebounce(formData.nickname || "", 400);
   const debouncedEmail = useDebounce(formData.email || "", 400);
 
-  // API 호출
+  // 중복 체크 API 호출
   const { data: nicknameData, error: nicknameError } = useNickname(
     debouncedNickname,
-    validateNickname(debouncedNickname) && debouncedNickname?.trim() !== ""
+    ValidationUtils.nickname(debouncedNickname) && debouncedNickname?.trim() !== ""
   );
   const { data: emailData, error: emailError } = useEmail(
     debouncedEmail,
-    debouncedEmail?.trim() !== "" && validateEmail(debouncedEmail)
+    debouncedEmail?.trim() !== "" && ValidationUtils.email(debouncedEmail)
   );
 
   const register = useRegister(() => {

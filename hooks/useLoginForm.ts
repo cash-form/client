@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { LoginFormData } from "src/types/auth";
-
-function validateEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function validatePassword(password: string) {
-  // 8자 이상, 영문, 숫자, 특수문자 포함
-  return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/.test(password);
-}
+import { ValidationUtils, ValidationMessages } from "src/utils/validation";
 
 export default function useLoginForm() {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -27,12 +19,12 @@ export default function useLoginForm() {
   };
 
   const validate = (): boolean => {
-    if (!validateEmail(formData.email)) {
-      setError("올바른 이메일 형식을 입력하세요.");
+    if (!ValidationUtils.email(formData.email)) {
+      setError(ValidationMessages.email);
       return false;
     }
-    if (!validatePassword(formData.password)) {
-      setError("영문, 숫자, 특수문자 포함 8자 이상 입력하세요.");
+    if (!ValidationUtils.password(formData.password)) {
+      setError(ValidationMessages.password);
       return false;
     }
     setError(null);

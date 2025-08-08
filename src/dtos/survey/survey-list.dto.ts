@@ -1,35 +1,25 @@
-export interface SurveyAuthorDto {
-  id: number;
-  nickname: string;
-  userType: number;
-}
+import { Product } from "src/types/survey";
+import { SurveyAuthor } from "src/types/user";
+import { PaginationRequest, PaginationResponse, SortRequest, SearchRequest } from "src/types/common";
 
+// 설문 목록 아이템
 export interface SurveyItemDto {
   id: number;
   title: string;
   startDate: string;
   endDate: string;
-  product: number | null;
+  product: Product;
   createdAt: string;
   updatedAt: string;
-  author: SurveyAuthorDto;
+  author: SurveyAuthor;
   participantCount: number;
   status: number;
   authorId: number;
   isDeleted: boolean;
 }
 
-export interface SurveyListResponseDto {
-  list: SurveyItemDto[];
-  total: number;
-  page: number;
-  size: number;
-}
+// 설문 목록 응답
+export type SurveyListResponseDto = PaginationResponse<SurveyItemDto>;
 
-export interface SurveyListRequestDto {
-  page?: number;
-  size?: number;
-  sort?: string;
-  order?: "ASC" | "DESC";
-  keyword?: string;
-}
+// 설문 목록 요청
+export type SurveyListRequestDto = PaginationRequest & SortRequest & SearchRequest;

@@ -1,13 +1,8 @@
 import { Product } from "src/types/survey";
-import { HeaderFooterDto, QuestionDto } from "./request.dto";
+import { SurveyAuthor } from "src/types/user";
+import { PaginationResponse } from "src/types/common";
 
-interface AuthorDto {
-  marketingConsent: boolean;
-  newsletterConsent: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
+// 설문 상세 조회 응답
 export interface SurveyResponseDto {
   id: number;
   title: string;
@@ -15,34 +10,61 @@ export interface SurveyResponseDto {
   endDate: string;
   product: Product;
   credit: number;
+  author: SurveyAuthor;
+  participantCount: number;
+  header: {
+    text: string;
+    images: string[];
+  };
+  footer: {
+    text: string;
+    images: string[];
+  };
+  questions: {
+    id: number;
+    type: number;
+    title: string;
+    text: string;
+    images: string[];
+    options: string[];
+    multipleCount: number;
+    maxLength: number;
+  }[];
+}
+
+// 설문 목록 아이템
+interface GetSurveyResponseRawData {
+  id: number;
+  title: string;
+  startDate: string;
+  endDate: string;
+  product: Product;
   createdAt: string;
   updatedAt: string;
-  author: AuthorDto;
+  author: SurveyAuthor;
   participantCount: number;
-  header: HeaderFooterDto;
-  questions: QuestionDto[];
-  footer: HeaderFooterDto;
+  status: number;
+  authorId: number;
+  isDeleted: boolean;
 }
+
+type SurveyListResponseRawData = PaginationResponse<GetSurveyResponseRawData>;
 
 export class GetSurveyResponseDto {
   public readonly id: number;
   public readonly title: string;
   public readonly startDate: string;
   public readonly endDate: string;
-  public readonly product: number | null;
+  public readonly product: Product;
   public readonly createdAt: string;
   public readonly updatedAt: string;
-  public readonly author: {
-    id: number;
-    nickname: string;
-    userType: number;
-  };
+  public readonly author: SurveyAuthor;
   public readonly participantCount: number;
   public readonly status: number;
   public readonly authorId: number;
   public readonly isDeleted: boolean;
 
-  constructor(data: any) {
+  constructor(data: GetSurveyResponseRawData) {
     this.id = data.id;
     this.title = data.title;
     this.startDate = data.startDate;
@@ -64,8 +86,8 @@ export class SurveyListResponseDto {
   public readonly page: number;
   public readonly size: number;
 
-  constructor(data: any) {
-    this.list = data.list.map((item: any) => new GetSurveyResponseDto(item));
+  constructor(data: SurveyListResponseRawData) {
+    this.list = data.list.map((item: GetSurveyResponseRawData) => new GetSurveyResponseDto(item));
     this.total = data.total;
     this.page = data.page;
     this.size = data.size;

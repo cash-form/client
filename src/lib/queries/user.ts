@@ -87,7 +87,7 @@ export const useLogin = (onSuccess: () => void) => {
 // 내 정보 불러오기 - 인증 필요 (이미 설정됨)
 export const fetchMe = async (): Promise<UserDto> => {
   const data = await fetchWithAuth("/v1/users/me", { method: "GET" }, true);
-  return plainToInstance(UserDto, data);
+  return data as UserDto;
 };
 
 export const useMe = () => {

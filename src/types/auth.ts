@@ -1,13 +1,3 @@
-// 사용자 정보 타입
-export interface User {
-  id: number;
-  email: string;
-  nickname: string;
-  marketingConsent: boolean;
-  newsletterConsent: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 // 토큰 정보 타입
 export interface TokenInfo {
@@ -15,13 +5,13 @@ export interface TokenInfo {
   refreshToken: string;
 }
 
-// 로그인 폼 데이터 타입
+// 로그인 폼 데이터
 export interface LoginFormData {
   email: string;
   password: string;
 }
 
-// 회원가입 폼 데이터 타입
+// 회원가입 폼 데이터
 export interface RegisterFormData {
   nickname: string;
   email: string;
@@ -31,7 +21,7 @@ export interface RegisterFormData {
   newsletterConsent: boolean;
 }
 
-// API 에러 타입
+// 에러 응답 타입
 export interface ApiError {
   message: string;
   code?: string;

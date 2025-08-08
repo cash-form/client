@@ -17,6 +17,7 @@ export const convertQuestionType = (type: QuestionType): number => {
   return questionTypeToNumber[type];
 };
 
+// Product 타입 정의
 export type Product = 1 | 2 | 3 | 4;
 
 export const productNames = {
