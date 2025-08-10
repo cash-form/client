@@ -4,13 +4,14 @@ interface PageUrlConfigType {
 
 export const PageUrlConfig: PageUrlConfigType = {
   HOME: "/",
+  LOGIN: "/login",
   NOTICE: "/notice",
   SURVEYS: "/surveys",
+  SURVEY_DETAIL: "/surveys/*", // 설문조사 상세 페이지 (user only)
   SUPPORT: "/support",
   SIGN_UP: "/signup",
   REGISTER: "/surveys/register",
   PLANS: "/plans",
-  COMPONENTS: "/components",
   ADMIN: "/admin",
 };
 
@@ -18,20 +19,21 @@ export const PageUrlConfig: PageUrlConfigType = {
 export const AccessPaths = {
   guest: [
     PageUrlConfig.HOME,
+    PageUrlConfig.LOGIN,
     PageUrlConfig.SIGN_UP,
-    PageUrlConfig.SURVEYS,
+    PageUrlConfig.SURVEYS, // 설문조사 목록만 (상세는 미들웨어에서 별도 처리)
     PageUrlConfig.PLANS,
     PageUrlConfig.NOTICE,
     PageUrlConfig.SUPPORT,
   ],
   user: [
     PageUrlConfig.HOME,
-    PageUrlConfig.SURVEYS,
+    PageUrlConfig.SURVEYS, // 설문조사 목록
+    PageUrlConfig.SURVEY_DETAIL, // 설문조사 상세 (user만)
     PageUrlConfig.PLANS,
     PageUrlConfig.NOTICE,
     PageUrlConfig.SUPPORT,
     PageUrlConfig.REGISTER,
-    PageUrlConfig.COMPONENTS,
     PageUrlConfig.ADMIN,
   ],
 } as const;
