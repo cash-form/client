@@ -1,4 +1,4 @@
-import { ProductId } from "src/types/survey";
+import { Product } from "src/types/survey";
 import { SurveyAuthor } from "src/types/user";
 
 // 설문 상세 조회 응답
@@ -7,7 +7,7 @@ export interface SurveyDetailResponseDto {
   title: string;
   startDate: string;
   endDate: string;
-  product: ProductId;
+  product: Product;
   credit?: number;
   createdAt: string;
   updatedAt: string;

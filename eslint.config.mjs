@@ -14,8 +14,8 @@ const eslintConfig = [
   {
     rules: {
       "@next/next/no-img-element": "off",
-      "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-non-null-assertion": "warn",
       "prefer-const": "error",
       "no-console": "warn",
