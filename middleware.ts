@@ -51,6 +51,11 @@ export const config = {
 // 유틸 함수
 // ==========================
 function isGuestAccessible(pathname: string) {
+  // /surveys/[id] 패턴 (설문조사 상세)은 게스트 접근 불가
+  if (pathname.match(/^\/surveys\/\d+/)) {
+    return false;
+  }
+  
   return AccessPaths.guest.some((path) => pathname.startsWith(path));
 }
 
