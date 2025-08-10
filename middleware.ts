@@ -1,40 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
+import { AccessPaths } from "./src/config/page.config";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // 정적 파일은 패스
   if (pathname.startsWith("/images")) return NextResponse.next();
 
-  // 즉시 렌더링 처리 URI - 요구사항에 맞게 수정
-  const allowedPaths = ["/", "/signup", "/surveys"];
-  if (allowedPaths.includes(pathname)) {
-    return NextResponse.next();
+  //  게스트 접근 가능 페이지면 패스 (하위 경로 포함)
+  if (isGuestAccessible(pathname)) return NextResponse.next();
+
+  //  토큰 확인
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+
+  //  토큰 둘 다 없으면 로그인
+  if (!accessToken && !refreshToken) {
+    return redirectTo("/login", request.url);
   }
 
-  // 쿠키에서 토큰 보유 여부 확인
-  const hasAccess = request.cookies.get("accessToken")?.value !== undefined;
-  const hasRefresh = request.cookies.get("refreshToken")?.value !== undefined;
-
-  if (!hasRefresh) {
-    // 토큰 없으면 /signup으로 리디렉션
-    const redirectUrl = new URL("/signup", request.url);
-    return NextResponse.redirect(redirectUrl);
+  //  액세스토큰이 있으면 유효성 검증
+  if (accessToken) {
+    const validation = await validateAccessToken(accessToken, pathname);
+    if (validation.isValid) return NextResponse.next();
+    // 액세스토큰 유효하지만 권한 없으면 메인으로
+    if (validation.redirectTo)
+      return redirectTo(validation.redirectTo, request.url);
   }
 
-  if (!hasAccess && hasRefresh) {
-    const refreshToken = request.cookies.get("refreshToken")?.value;
-    const response = NextResponse.next();
-    const result = await getAccessToken(refreshToken as string, response);
-
-    if (!result) {
-      const redirectUrl = new URL("/signup", request.url);
-      return NextResponse.redirect(redirectUrl);
+  //리프레시 토큰이 있으면 재발급 시도
+  if (refreshToken) {
+    const refreshed = await refreshAccessToken(refreshToken);
+    if (refreshed) {
+      const targetUrl = pathname === "/login" ? "/" : request.url;
+      return setAuthCookiesAndRedirect(refreshed, targetUrl);
     }
-    return response;
   }
 
-  // 토큰 있으면 렌더링 처리
-  return NextResponse.next();
+  // 모든 경우 실패 시 로그인 페이지로
+  return redirectTo("/login", request.url);
 }
 
 export const config = {
@@ -43,42 +47,87 @@ export const config = {
   ],
 };
 
-async function getAccessToken(refreshToken: string, response: NextResponse) {
+// ==========================
+// 유틸 함수
+// ==========================
+function isGuestAccessible(pathname: string) {
+  return AccessPaths.guest.some((path) => pathname.startsWith(path));
+}
+
+function redirectTo(path: string, requestUrl: string) {
+  return NextResponse.redirect(new URL(path, requestUrl));
+}
+
+function setAuthCookiesAndRedirect(
+  tokens: { accessToken: string; refreshToken?: string },
+  url: string
+) {
+  const response = NextResponse.redirect(url);
+
+  if (tokens.accessToken) {
+    response.cookies.set("accessToken", tokens.accessToken, {
+      maxAge: 86400,
+      path: "/",
+      sameSite: "strict",
+    });
+  }
+
+  if (tokens.refreshToken) {
+    response.cookies.set("refreshToken", tokens.refreshToken, {
+      maxAge: 86400 * 7,
+      path: "/",
+      sameSite: "strict",
+    });
+  }
+
+  return response;
+}
+
+// ==========================
+// API 호출
+// ==========================
+async function validateAccessToken(accessToken: string, pathname: string) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  try {
+    const res = await fetch(`${apiUrl}/v1/auth/me`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!res.ok) return { isValid: false };
+
+    const userData = await res.json();
+    const userType = userData.userType || userData.type;
+    const allowedPaths =
+      userType === "guest" ? AccessPaths.guest : AccessPaths.user;
+
+    if (allowedPaths.some((path) => pathname.startsWith(path))) {
+      return { isValid: true };
+    } else {
+      return { isValid: true, redirectTo: "/" };
+    }
+  } catch (err) {
+    console.error("validateAccessToken error:", err);
+    return { isValid: false };
+  }
+}
+
+async function refreshAccessToken(refreshToken: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
     const res = await fetch(`${apiUrl}/v1/auth/refresh`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ refreshToken: refreshToken }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
     });
 
-    if (!res.ok) return false;
-
-    const data: { accessToken: string; refreshToken?: string } =
-      await res.json();
-
-    // middleware에서는 이렇게 쿠키 설정 - 새로운 응답 형식에 맞게 수정
-    response.cookies.set("accessToken", data.accessToken, {
-      maxAge: 86400,
-      path: "/",
-      sameSite: "strict",
-    });
-
-    // 새로운 refreshToken도 업데이트
-    if (data.refreshToken) {
-      response.cookies.set("refreshToken", data.refreshToken, {
-        maxAge: 86400 * 7, // 7일
-        path: "/",
-        sameSite: "strict",
-      });
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Token refresh error:", error);
-    return false;
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { accessToken: data.accessToken, refreshToken: data.refreshToken };
+  } catch (err) {
+    console.error("refreshAccessToken error:", err);
+    return null;
   }
 }
