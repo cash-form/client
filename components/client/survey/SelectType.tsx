@@ -181,22 +181,26 @@ export default function SelectType({
 
   // 질문 삭제
   const handleQuestionDelete = useCallback(
-    (index: number) => {
-      Swal.fire({
-        title: "문항을 삭제하시겠습니까?",
-        text: "삭제된 문항은 복구할 수 없습니다.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#ef4444",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "삭제",
-        cancelButtonText: "취소",
-      }).then((result) => {
+    async (index: number) => {
+      try {
+        const result = await Swal.fire({
+          title: "문항을 삭제하시겠습니까?",
+          text: "삭제된 문항은 복구할 수 없습니다.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#ef4444",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "삭제",
+          cancelButtonText: "취소",
+        });
+
         if (result.isConfirmed) {
           const newQuestions = questions.filter((_, i) => i !== index);
           onQuestionAdd(newQuestions);
         }
-      });
+      } catch {
+        // 문항 삭제 처리 오류 시 무시
+      }
     },
     [questions, onQuestionAdd]
   );

@@ -44,23 +44,28 @@ export default function SignupForm() {
   // 중복 체크 API 호출
   const { data: nicknameData, error: nicknameError } = useNickname(
     debouncedNickname,
-    ValidationUtils.nickname(debouncedNickname) && debouncedNickname?.trim() !== ""
+    ValidationUtils.nickname(debouncedNickname) &&
+      debouncedNickname?.trim() !== ""
   );
   const { data: emailData, error: emailError } = useEmail(
     debouncedEmail,
     debouncedEmail?.trim() !== "" && ValidationUtils.email(debouncedEmail)
   );
 
-  const register = useRegister(() => {
-    Swal.fire({
-      title: "회원가입 완료!",
-      text: "회원가입이 완료되었습니다.",
-      icon: "success",
-    }).then((result: SweetAlertResult) => {
+  const register = useRegister(async () => {
+    try {
+      const result: SweetAlertResult = await Swal.fire({
+        title: "회원가입 완료!",
+        text: "회원가입이 완료되었습니다.",
+        icon: "success",
+      });
+
       if (result.isConfirmed) {
         router.push("/");
       }
-    });
+    } catch {
+      // 회원가입 완료 처리 오류 시 무시
+    }
   });
 
   // 이메일 중복 체크 결과 처리
