@@ -57,16 +57,18 @@ export default function SurveyFormWrapper() {
   }, [currentPlanConfig.maxImages, totalImageCount]);
 
   const handlePlanSelect = useCallback(
-    (plan: Product) => {
+    async (plan: Product) => {
       if (currentStep === "form" && formData.questions.length > 0) {
-        Swal.fire({
-          title: "요금제를 변경하시겠습니까?",
-          text: "요금제 변경 시 작성된 모든 문항이 삭제됩니다.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "변경하기",
-          cancelButtonText: "취소",
-        }).then((result) => {
+        try {
+          const result = await Swal.fire({
+            title: "요금제를 변경하시겠습니까?",
+            text: "요금제 변경 시 작성된 모든 문항이 삭제됩니다.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "변경하기",
+            cancelButtonText: "취소",
+          });
+
           if (result.isConfirmed) {
             setFormData((prev) => ({
               ...prev,
@@ -76,7 +78,9 @@ export default function SurveyFormWrapper() {
 
             setCurrentStep("plan");
           }
-        });
+        } catch {
+          // 요금제 변경 처리 오류 시 무시
+        }
       } else {
         setFormData((prev) => ({
           ...prev,
@@ -97,23 +101,27 @@ export default function SurveyFormWrapper() {
   }, []);
 
   const handleQuestionAdd = useCallback(
-    (questions: any[]) => {
+    async (questions: any[]) => {
       if (
         currentPlanConfig.maxQuestions > 0 &&
         questions.length > currentPlanConfig.maxQuestions
       ) {
-        Swal.fire({
-          title: "문항 수 제한",
-          text: `${currentPlanConfig.maxQuestions}개까지만 추가할 수 있습니다. 더 많은 문항을 추가하려면 요금제를 업그레이드하세요.`,
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "요금제 변경",
-          cancelButtonText: "확인",
-        }).then((result) => {
+        try {
+          const result = await Swal.fire({
+            title: "문항 수 제한",
+            text: `${currentPlanConfig.maxQuestions}개까지만 추가할 수 있습니다. 더 많은 문항을 추가하려면 요금제를 업그레이드하세요.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "요금제 변경",
+            cancelButtonText: "확인",
+          });
+
           if (result.isConfirmed) {
             setCurrentStep("plan");
           }
-        });
+        } catch {
+          // 문항 수 제한 처리 오류 시 무시
+        }
         return;
       }
 
@@ -193,14 +201,9 @@ export default function SurveyFormWrapper() {
         },
       };
 
-      console.log("🚀 Survey submission - Full request data:", requestData);
-      console.log(
-        "📝 Questions with images:",
-        processedQuestions.filter((q) => q.images && q.images.length > 0)
-      );
       registerSurvey(requestData);
-    } catch (error) {
-      console.error("설문 등록 중 오류 발생:", error);
+    } catch {
+      // 설문 등록 오류 시 무시
     }
   }, [formData, registerSurvey, currentPlanConfig]);
 

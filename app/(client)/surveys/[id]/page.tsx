@@ -26,9 +26,16 @@ export default function SurveyDetailPage({ params }: SurveyDetailPageProps) {
   const [id, setId] = useState<string>("");
 
   useEffect(() => {
-    params.then((resolvedParams) => {
-      setId(resolvedParams.id);
-    });
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params;
+        setId(resolvedParams.id);
+      } catch {
+        // 파라미터 resolve 실패 시 무시
+      }
+    };
+
+    resolveParams();
   }, [params]);
 
   const { data: survey, isLoading: loading, error } = useSurveyDetail(id);
