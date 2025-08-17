@@ -6,13 +6,15 @@ import SelectType from "./SelectType";
 import SurveyFooter from "./SurveyFooter";
 import PlanSelector from "./PlanSelector";
 import { useSurveyMutation } from "src/lib/queries/survey";
+import { useNaverPay } from "src/lib/queries/payment";
 import { SurveyFormDto } from "src/dtos/survey/request.dto";
 import { FormState, convertQuestionType, Product } from "src/types/survey";
+import { PaymentType } from "src/dtos/payment/payment.dto";
 import { PLAN_CONFIGS } from "src/config/plan.config";
 import { formatPrice } from "components/client/plan/utils/formatters";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faCreditCard } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "src/components/ui/button";
 
 export default function SurveyFormWrapper() {
@@ -34,6 +36,7 @@ export default function SurveyFormWrapper() {
   });
 
   const { mutate: registerSurvey } = useSurveyMutation();
+  const naverPay = useNaverPay();
 
   // 선택된 요금제의 제한사항
   const currentPlanConfig = useMemo(() => {
@@ -140,38 +143,8 @@ export default function SurveyFormWrapper() {
     []
   );
 
-  const handleSubmit = useCallback(async () => {
+  const handleDirectSubmit = useCallback(async () => {
     try {
-      // 요금제별 제한 체크
-      if (
-        currentPlanConfig.maxQuestions > 0 &&
-        formData.questions.length > currentPlanConfig.maxQuestions
-      ) {
-        Swal.fire({
-          title: "문항 수 초과",
-          text: `선택한 요금제에서는 최대 ${currentPlanConfig.maxQuestions}개의 문항만 가능합니다.`,
-          icon: "error",
-        });
-        return;
-      }
-
-      // 이미지 사용 제한 체크
-      if (currentPlanConfig.maxImages === 0) {
-        const hasImages =
-          formData.header.images.length > 0 ||
-          formData.footer.images.length > 0 ||
-          formData.questions.some((q) => q.images.length > 0);
-
-        if (hasImages) {
-          Swal.fire({
-            title: "이미지 사용 불가",
-            text: "선택한 요금제에서는 이미지를 사용할 수 없습니다.",
-            icon: "error",
-          });
-          return;
-        }
-      }
-
       const processedQuestions = formData.questions.map((question) => {
         const { id, ...questionWithoutId } = question;
         return {
@@ -202,10 +175,108 @@ export default function SurveyFormWrapper() {
       };
 
       registerSurvey(requestData);
-    } catch {
-      // 설문 등록 오류 시 무시
+    } catch (error) {
+      console.error("설문 등록 오류:", error);
     }
-  }, [formData, registerSurvey, currentPlanConfig]);
+  }, [formData, registerSurvey]);
+
+  const handlePaymentAndSubmit = useCallback(async () => {
+    try {
+      // 폼 유효성 검사
+      if (!isFormValid()) {
+        return;
+      }
+
+      // 요금제별 제한 체크
+      if (
+        currentPlanConfig.maxQuestions > 0 &&
+        formData.questions.length > currentPlanConfig.maxQuestions
+      ) {
+        Swal.fire({
+          title: "문항 수 초과",
+          text: `선택한 요금제에서는 최대 ${currentPlanConfig.maxQuestions}개의 문항만 가능합니다.`,
+          icon: "error",
+        });
+        return;
+      }
+
+      // 이미지 사용 제한 체크
+      if (currentPlanConfig.maxImages === 0) {
+        const hasImages =
+          formData.header.images.length > 0 ||
+          formData.footer.images.length > 0 ||
+          formData.questions.some((q) => q.images.length > 0);
+
+        if (hasImages) {
+          Swal.fire({
+            title: "이미지 사용 불가",
+            text: "선택한 요금제에서는 이미지를 사용할 수 없습니다.",
+            icon: "error",
+          });
+          return;
+        }
+      }
+
+      // 무료 요금제인 경우 바로 등록
+      if (currentPlanConfig.price === 0) {
+        await handleDirectSubmit();
+        return;
+      }
+
+      // 유료 요금제인 경우 설문 데이터를 먼저 저장하고 네이버페이 결제
+
+      // 1. 설문 데이터를 로컬 스토리지에 임시 저장
+      const processedQuestions = formData.questions.map((question) => {
+        const { id, ...questionWithoutId } = question;
+        return {
+          ...questionWithoutId,
+          type: convertQuestionType(question.type),
+          images: question.images,
+        };
+      });
+
+      const formatDate = (date: string) => {
+        return new Date(date).toISOString();
+      };
+
+      const requestData: SurveyFormDto = {
+        product: formData.product,
+        title: formData.title,
+        startDate: formatDate(formData.startDate),
+        endDate: formatDate(formData.endDate),
+        header: {
+          text: formData.header.text,
+          images: formData.header.images,
+        },
+        questions: processedQuestions,
+        footer: {
+          text: formData.footer.text,
+          images: formData.footer.images,
+        },
+      };
+
+      // 임시 저장
+      localStorage.setItem("pendingSurveyData", JSON.stringify(requestData));
+
+      // 2. 네이버페이 결제 진행
+      const paymentData = {
+        target: formData.product,
+        amount: currentPlanConfig.price,
+        type: PaymentType.SURVEY,
+        product: `${currentPlanConfig.name} - ${formData.title}`,
+        method: "naver_pay" as const,
+      };
+
+      const returnUrl = `${window.location.origin}/surveys/register/success?title=${encodeURIComponent(formData.title)}`;
+
+      await naverPay.mutateAsync({
+        paymentData,
+        returnUrl,
+      });
+    } catch (error) {
+      console.error("결제 또는 등록 처리 중 오류:", error);
+    }
+  }, [formData, currentPlanConfig, naverPay]);
 
   const isFormValid = useCallback(() => {
     if (!formData.title || !formData.startDate || !formData.endDate) {
@@ -316,18 +387,28 @@ export default function SurveyFormWrapper() {
 
         <div className="mt-12">
           <Button
-            onClick={handleSubmit}
-            disabled={!isFormValid()}
+            onClick={handlePaymentAndSubmit}
+            disabled={!isFormValid() || naverPay.isPending}
             size="lg"
             className="w-full"
           >
-            {isFormValid() ? (
+            {naverPay.isPending ? (
               <>
-                <FontAwesomeIcon icon={faCheck} className="w-5 h-5 mr-2" />
-                설문 등록하기
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                결제 처리중...
+              </>
+            ) : !isFormValid() ? (
+              "모든 필수 항목을 입력해주세요"
+            ) : currentPlanConfig.price === 0 ? (
+              <>
+                <FontAwesomeIcon icon={faCreditCard} className="w-5 h-5 mr-2" />
+                무료로 설문 등록하기
               </>
             ) : (
-              "모든 필수 항목을 입력해주세요"
+              <>
+                <FontAwesomeIcon icon={faCreditCard} className="w-5 h-5 mr-2" />
+                💚 네이버페이로 결제하고 등록하기 ({formatPrice(currentPlanConfig.price)})
+              </>
             )}
           </Button>
         </div>

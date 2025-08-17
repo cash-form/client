@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import QueryProvider from "components/common/provider/provider";
 
@@ -25,6 +26,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Script
+          src="https://nsp.pay.naver.com/sdk/js/naverpay.min.js"
+          strategy="beforeInteractive"
+        />
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>

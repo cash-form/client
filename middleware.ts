@@ -95,7 +95,7 @@ async function validateAccessToken(accessToken: string, pathname: string) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   try {
-    const res = await fetch(`${apiUrl}/v1/auth/me`, {
+    const res = await fetch(`${apiUrl}/v1/users/me`, {
       method: "GET",
       headers: { Authorization: `Bearer ${accessToken}` },
     });
@@ -103,7 +103,16 @@ async function validateAccessToken(accessToken: string, pathname: string) {
     if (!res.ok) return { isValid: false };
 
     const userData = await res.json();
-    const userType = userData.userType || userData.type;
+    const userTypeRaw = userData.userType || userData.type;
+    
+    // userType이 숫자인 경우 문자열로 변환
+    let userType: string;
+    if (typeof userTypeRaw === "number") {
+      userType = userTypeRaw === 0 ? "guest" : "user";
+    } else {
+      userType = userTypeRaw;
+    }
+    
     const allowedPaths =
       userType === "guest" ? AccessPaths.guest : AccessPaths.user;
 
